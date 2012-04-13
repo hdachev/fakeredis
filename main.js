@@ -11,6 +11,15 @@ var index       = require ( "redis" ),
     anon        = 0;
 
 
+    ////    Re-export redis exports.
+
+exports.RedisClient = index.RedisClient;
+exports.Multi       = index.Multi;
+exports.print       = index.print;
+
+
+    ////    Overriden client factory.
+
 exports.createClient = function ( port, host, options )
 {
     var id  = !port && !host ? 'fake_' + ( ++ anon ) : ( host || "" ) + ( port || "" ),
@@ -82,15 +91,7 @@ exports.createClient = function ( port, host, options )
 };
 
 
-    ////    Enable instanceof checks on the redis client.
-
-exports.RedisClient = function ()
-{
-    throw new Error ( "Use createClient instead." );
-};
-
-
-    ////    node_redis compat stuff.
+    ////    Helpers for node_redis compat.
 
 // hgetall converts its replies to an Object.  If the reply is empty, null is returned.
 function reply_to_object(reply) {
