@@ -336,13 +336,9 @@ so that the final result is simple enough to assert deep equality against.
 
 
 
-## LICENSE - "MIT License"
+## LICENSE - MIT
 
-Fakeredis:
 Copyright (c) 2012 Hristo Dachev, http://controul.com/
-
-Original [redis](https://github.com/mranney/node_redis) client licence:
-Copyright (c) 2010 Matthew Ranney, http://ranney.com/
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
