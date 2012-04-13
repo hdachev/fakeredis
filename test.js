@@ -240,7 +240,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.HSETNX ( "h", "F1", "V1", test ( "HSETNX", null, 1 ) );
     redis.HGETALL ( "h", test ( "HGETALL", null, { "F1": "V1", "f1": "v1", "f2": "v2", "field-3": "3", "field-4": "4" } ) );
 
-    redis.getKeyspace ( "*h", test ( "getKeyspace() with pattern", null, [ [ "h", "-1", "hash", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", "3", "field-4", "4" ] ] ] ) );
+    redis.getKeyspace ( "*h", test ( "getKeyspace() with pattern", null, [ "h", "-1", "hash", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", "3", "field-4", "4" ] ] ) );
 
     redis.HKEYS ( "h", test ( "HKEYS", null, [ "F1", "f1", "f2", "field-3", "field-4" ] ) );
     redis.send_command ( "HINCRBYFLOAT", [ "h", "f1", 3.5 ], test ( "HINCRBYFLOAT fail", BAD_FLOAT, null ) );
@@ -291,7 +291,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.LREM ( "list3", -1, "three", test ( "LREM right", null, 1 ) );
     redis.LREM ( "list3", -2, "what", test ( "LREM 2right", null, 2 ) );
 
-    redis.getKeyspace ( "*list*", test ( "lists outcome", null, [ [ "list3", "-1", "list", [ "three", "two" ] ], [ "newlist", "-1", "list", [ "what", "where", "why" ] ] ] ) );
+    redis.getKeyspace ( "*list*", test ( "lists outcome", null, [ "list3", "-1", "list", [ "three", "two" ], "newlist", "-1", "list", [ "what", "where", "why" ] ] ) );
 
 
 
@@ -307,7 +307,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis2.RPUSH ( "BL-c", "CC1", "CC2", "CC3", test ( "RPUSH + BLPOP", null, 3 ) );
 
-    redis.getKeyspace ( "BL-?", test ( "blocking lists outcome", null, [ [ "BL-b", "-1", "list", [ "BB1", "BB2" ] ], [ "BL-c", "-1", "list", [ "CC2", "CC3" ] ] ] ) );
+    redis.getKeyspace ( "BL-?", test ( "blocking lists outcome", null, [ "BL-b", "-1", "list", [ "BB1", "BB2" ], "BL-c", "-1", "list", [ "CC2", "CC3" ] ] ) );
 
 
 
@@ -334,7 +334,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
             redis.FLUSHDB ();
             redis.GETSET ( "hello", "world", test ( "GETSET null", null, null ) );
-            redis.getKeyspace ( test ( "getKeyspace() flushed, nopat", null, [ [ "hello", "-1", "string", "world" ] ] ) );
+            redis.getKeyspace ( test ( "getKeyspace() flushed, nopat", null, [ "hello", "-1", "string", "world" ] ) );
         },
         1000
     );

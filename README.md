@@ -279,7 +279,7 @@ fakeredis provides some additional methods on the client object.
 
     fakeredisClient.pretty ();
     fakeredisClient.pretty ( "p*tte?n" );
-    fakeredisClient.pretty ({ label : "zsets before dbflush", pattern : "myz*" });
+    fakeredisClient.pretty ( options );
 
 `.pretty()` will prettyprint to stdout the entire keyspace
 or a subset of keys specificed with a redis pattern
@@ -295,7 +295,7 @@ so that you can do stuff like:
 
     client.SADD ( 'hello', 'world', 'Jenny', 'Sam' );
     client.LPUSH ( 'mylist', 'hey', 'ho', 'letsgo' );
-    client.pretty ({ label : "my stuff" });
+    client.pretty ({ label : "my stuff", pattern : "*" });
 
 Which would print *(in color!)*
 
@@ -311,16 +311,16 @@ Which would print *(in color!)*
 ### Keyspace dumps:
 
     fakeredisClient.getKeypsace ( callback );
-    fakeredisClient.getKeypsace ( "p*tte?n", callback )
-    fakeredisClient.getKeypsace ({ label : "zsets before dbflush", pattern : "myz*" }, callback );
+    fakeredisClient.getKeypsace ( "p*tte?n", callback );
+    fakeredisClient.getKeyspace ( options, callback );
 
 Will callback ( err, data ) with an array
 that enumerates the whole keyspace,
 or the requested subset, in the following manner:
 
     [
-        [ key1, ttl1, type1, value1 ],
-        [ key2, ttl2, type2, value2 ],
+        key1, ttl1, type1, value1,
+        key2, ttl2, type2, value2,
         ...
     ]
 
@@ -328,11 +328,42 @@ The keyspace is sorted lexicographically by key,
 string values are strings,
 list values are the output of `LRANGE 0 -1`,
 hashes come out as the output of `HGETALL` for hashes
-(no syntactic sugar though, so an Array of `[ field, value, field, value, ... ]`,
+(no syntactic sugar though, so an Array of `[ field, value, field, value, ... ]`),
 `SMEMBERS` output is used for sets,
 and `ZRANGE 0 -1 WITHSCORES` for sorted sets,
 each of which is sorted lexicographically in a way that makes sense,
 so that the final result is simple enough to assert deep equality against.
+
+In any case, you'll probably need to reformat these keyspace dumps
+to a format that makes more sense for your testing needs.
+There are a couple of transforms that are included out of the box:
+
+    fakeredisClient.getKeypsace ({ pattern : "myz*", map : true }, callback );
+
+If you only care about the key and value of each entry,
+you can set the **map** option to a truthy value,
+you will instead receive the keyspace dump as a key-value map of the kind:
+
+    {
+        key1 : value1,
+        key2 : value2,
+        ...
+    }
+
+This means you're skipping ttl and key type info though. You can also do:
+
+    fakeredisClient.getKeypsace ({ pattern : "myz*", group : true }, callback );
+
+Which will return an `Array` of `Array`s,
+one for each keyspace entry, so that you end up with:
+
+    [
+        [ key1, ttl1, type1, value1 ],
+        [ key2, ttl2, type2, value2 ],
+        ...
+    ]
+
+The benefit of this option is that you can sort the outer array as you like more easily.
 
 
 
