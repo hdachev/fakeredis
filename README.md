@@ -26,33 +26,36 @@ Install:
 
     npm install fakeredis
 
-
 You can use fakeredis as you would use node_redis,
 just changing the module name from `redis` to `fakeredis`:
 
-    var client = require ( "fakeredis" )
-        .createClient ( port, host );
-
+```javascript
+var client = require ( "fakeredis" )
+    .createClient ( port, host );
+```
 
 Both parameters are optional,
 and only serve to determine if you want to reuse a an existing fakeredis instance or not:
 
-    var redis  = require ( "fakeredis" );
+```javascript
+var redis  = require ( "fakeredis" );
 
-        ////    Create a connection to a fresh fakeredis instance:
+    ////    Create a connection to a fresh fakeredis instance:
 
-    var client = redis.createClient ( "social stuff" );
+var client = redis.createClient ( "social stuff" );
 
-        ////    Connect to the same backend via another simulated connection:
+    ////    Connect to the same backend via another simulated connection:
 
-    var concurrentClient = redis.createClient ( "social stuff" );
-
+var concurrentClient = redis.createClient ( "social stuff" );
+```
 
 By omitting both parameters,
 you simply create a new blank slate fakeredis instance:
 
-    var client = require ( "fakeredis" )
-        .createClient ();
+```javascript
+var client = require ( "fakeredis" )
+    .createClient ();
+```
 
 
 In other words,
@@ -277,9 +280,11 @@ fakeredis provides some additional methods on the client object.
 
 ### Prettyprinting:
 
-    fakeredisClient.pretty ();
-    fakeredisClient.pretty ( "p*tte?n" );
-    fakeredisClient.pretty ( options );
+```javascript
+fakeredisClient.pretty ();
+fakeredisClient.pretty ( "p*tte?n" );
+fakeredisClient.pretty ( options );
+```
 
 `.pretty()` will prettyprint to stdout the entire keyspace
 or a subset of keys specificed with a redis pattern
@@ -290,12 +295,14 @@ and hence needs to respect the command order,
 fake pipelining and latency and all,
 so that you can do stuff like:
 
-    var fake   = require ( "fakeredis" );
-    var client = fake.createClient ();
+```javascript
+var fake   = require ( "fakeredis" );
+var client = fake.createClient ();
 
-    client.SADD ( 'hello', 'world', 'Jenny', 'Sam' );
-    client.LPUSH ( 'mylist', 'hey', 'ho', 'letsgo' );
-    client.pretty ({ label : "my stuff", pattern : "*" });
+client.SADD ( 'hello', 'world', 'Jenny', 'Sam' );
+client.LPUSH ( 'mylist', 'hey', 'ho', 'letsgo' );
+client.pretty ({ label : "my stuff", pattern : "*" });
+```
 
 Which would print *(in color!)*
 
@@ -310,19 +317,23 @@ Which would print *(in color!)*
 
 ### Keyspace dumps:
 
-    fakeredisClient.getKeypsace ( callback );
-    fakeredisClient.getKeypsace ( "p*tte?n", callback );
-    fakeredisClient.getKeyspace ( options, callback );
+```javascript
+fakeredisClient.getKeypsace ( callback );
+fakeredisClient.getKeypsace ( "p*tte?n", callback );
+fakeredisClient.getKeyspace ( options, callback );
+```
 
 Will callback ( err, data ) with an array
 that enumerates the whole keyspace,
 or the requested subset, in the following manner:
 
-    [
-        key1, ttl1, type1, value1,
-        key2, ttl2, type2, value2,
-        ...
-    ]
+```javascript
+[
+    key1, ttl1, type1, value1,
+    key2, ttl2, type2, value2,
+    ...
+]
+```
 
 The keyspace is sorted lexicographically by key,
 string values are strings,
@@ -338,30 +349,38 @@ In any case, you'll probably need to reformat these keyspace dumps
 to a format that makes more sense for your testing needs.
 There are a couple of transforms that are included out of the box:
 
-    fakeredisClient.getKeypsace ({ pattern : "myz*", map : true }, callback );
+```javascript
+fakeredisClient.getKeypsace ({ pattern : "myz*", map : true }, callback );
+```
 
 If you only care about the key and value of each entry,
 you can set the **map** option to a truthy value,
 you will instead receive the keyspace dump as a key-value map of the kind:
 
-    {
-        key1 : value1,
-        key2 : value2,
-        ...
-    }
+```javascript
+{
+    key1 : value1,
+    key2 : value2,
+    ...
+}
+```
 
 This means you're skipping ttl and key type info though. You can also do:
 
-    fakeredisClient.getKeypsace ({ pattern : "myz*", group : true }, callback );
+```javascript
+fakeredisClient.getKeypsace ({ pattern : "myz*", group : true }, callback );
+```
 
 Which will return an `Array` of `Array`s,
 one for each keyspace entry, so that you end up with:
 
-    [
-        [ key1, ttl1, type1, value1 ],
-        [ key2, ttl2, type2, value2 ],
-        ...
-    ]
+```javascript
+[
+    [ key1, ttl1, type1, value1 ],
+    [ key2, ttl2, type2, value2 ],
+    ...
+]
+```
 
 The benefit of this option is that you can sort the outer array as you like more easily.
 
@@ -369,56 +388,57 @@ The benefit of this option is that you can sort the outer array as you like more
 
 ## Example usage with [vows](http://vowsjs.org/)
 
-    var vows = require ( 'vows' ),
-        assert = require ( 'assert' ),
-        fakeredis = require ( 'fakeredis' );
+```javascript
+var vows = require ( 'vows' ),
+    assert = require ( 'assert' ),
+    fakeredis = require ( 'fakeredis' );
 
-    vows.describe ( "fakeredis" ).addBatch
-    ({
-        "commands" :
+vows.describe ( "fakeredis" ).addBatch
+({
+    "commands" :
+    {
+        topic : function ()
         {
-            topic : function ()
-            {
-                var client = fakeredis.createClient ();
-                    client.SET ( 'hello', 'world' );
-                    client.GET ( 'hello', this.callback );
-            },
-
-            "execute in the right order" : function ( err, data )
-            {
-                assert.equal ( data, 'world' );
-            }
+            var client = fakeredis.createClient ();
+                client.SET ( 'hello', 'world' );
+                client.GET ( 'hello', this.callback );
         },
 
-        "set and sadd" :
+        "execute in the right order" : function ( err, data )
         {
-            topic : function ()
-            {
-                var client = fakeredis.createClient ();
-                    client.SET ( 'hello', 'redis' );
-                    client.SADD ( 'myset', 'one', 'two', 'three' );
-                    client.getKeyspace ( { map : true }, this.callback );
-            },
-
-            "generate the correct keyspace" : function ( err, data )
-            {
-                assert.deepEqual
-                (
-                    data,
-                    {
-                        // this test runs on a different fakeredis instance,
-                        // so you're not risking namespace collisions between tests
-                        hello : 'redis',
-
-                        // notice set elements come out sorted
-                        myset : [ 'one', 'three', 'two' ]
-                    }
-                );
-            }
+            assert.equal ( data, 'world' );
         }
-    })
-    .export ( module );
+    },
 
+    "set and sadd" :
+    {
+        topic : function ()
+        {
+            var client = fakeredis.createClient ();
+                client.SET ( 'hello', 'redis' );
+                client.SADD ( 'myset', 'one', 'two', 'three' );
+                client.getKeyspace ( { map : true }, this.callback );
+        },
+
+        "generate the correct keyspace" : function ( err, data )
+        {
+            assert.deepEqual
+            (
+                data,
+                {
+                    // this test runs on a different fakeredis instance,
+                    // so you're not risking namespace collisions between tests
+                    hello : 'redis',
+
+                    // notice set elements come out sorted
+                    myset : [ 'one', 'three', 'two' ]
+                }
+            );
+        }
+    }
+})
+.export ( module );
+```
 
 
 ## LICENSE - MIT
