@@ -386,7 +386,7 @@ The benefit of this option is that you can sort the outer array as you like more
 
 
 
-## Example usage with [vows](http://vowsjs.org/)
+## [Vows](http://vowsjs.org/) example
 
 ```javascript
 var vows = require ( 'vows' ),
@@ -443,7 +443,7 @@ vows.describe ( "fakeredis" ).addBatch
 
 ## LICENSE - MIT
 
-Copyright (c) 2012 Hristo Dachev, http://controul.com/
+Copyright (c) 2012 Hristo Dachev, http://bulklabs.com/
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
