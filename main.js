@@ -26,8 +26,10 @@ exports.createClient = function ( port, host, options )
         c   = new Connection ( backends [ id ] || ( backends [ id ] = new Backend ) ),
         cl  = new RedisClient ( { on : function () {} } /* , options */ ),
         ns  = options && options.no_sugar,
-
         sc  = 0;
+
+    if ( options && options.verbose )
+        c.verbose = true;
 
     cl.connected = true;
     cl.ready = true;
