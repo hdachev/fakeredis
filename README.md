@@ -367,6 +367,60 @@ The benefit of this option is that you can sort the outer array as you like more
 
 
 
+## Example usage with [vows](http://vowsjs.org/)
+
+    var vows = require ( 'vows' ),
+        assert = require ( 'assert' ),
+        fakeredis = require ( 'fakeredis' );
+
+    vows.describe ( "fakeredis" ).addBatch
+    ({
+        "commands" :
+        {
+            topic : function ()
+            {
+                var client = fakeredis.createClient ();
+                    client.SET ( 'hello', 'world' );
+                    client.GET ( 'hello', this.callback );
+            },
+
+            "execute in the right order" : function ( err, data )
+            {
+                assert.equal ( data, 'world' );
+            }
+        },
+
+        "set and sadd" :
+        {
+            topic : function ()
+            {
+                var client = fakeredis.createClient ();
+                    client.SET ( 'hello', 'redis' );
+                    client.SADD ( 'myset', 'one', 'two', 'three' );
+                    client.getKeyspace ( { map : true }, this.callback );
+            },
+
+            "generate the correct keyspace" : function ( err, data )
+            {
+                assert.deepEqual
+                (
+                    data,
+                    {
+                        // this test runs on a different fakeredis instance,
+                        // so you're not risking namespace collisions between tests
+                        hello : 'redis',
+
+                        // notice set elements come out sorted
+                        myset : [ 'one', 'three', 'two' ]
+                    }
+                );
+            }
+        }
+    })
+    .export ( module );
+
+
+
 ## LICENSE - MIT
 
 Copyright (c) 2012 Hristo Dachev, http://controul.com/
