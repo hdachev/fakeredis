@@ -794,6 +794,9 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.SORT ( "set",  "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT set by+get, h*->f",  null, result ) );
     redis.SORT ( "zset", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT zset by+get, h*->f", null, result ) );
 
+    redis.SORT ( "zset", "by", "o*->age", "get", "#", "get", "o*->name", "store", "storekey", test ( "SORT zset by+get, h*->f, STORE", null, result.length ) );
+    redis.LRANGE ( "storekey", 0, -1, test ( "SORT zset by+get, h*->f, STORE / LRANGE", null, result ) );
+
         ////    Negative offset behaves differently here and in ZRANGEBYSCORE
 
     redis.SORT ( "list", "by", "o*->age", "limit", 0, 2, "get", "#", "get", "o*->name", test ( "SORT limit", null, result.slice ( 0, 4 ) ) );
