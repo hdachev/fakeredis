@@ -11,7 +11,8 @@ var fake        = require ( "./main" ),
     BAD_FLOAT   = "value is not a valid float",
     BAD_SYNTAX  = "syntax error",
     BAD_INDEX   = "index out of range",
-    BAD_SETEX   = "invalid expire time in SETEX";
+    BAD_SETEX   = "invalid expire time in SETEX"
+    BAD_SORT    = "One or more scores can't be converted into double";
 
 
 
@@ -67,8 +68,8 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.DECR ( "hello", test ( "SET / DECR", BAD_INT, null ) );
     redis.TTL ( "hello", test ( "EXPIRE / TTL", null, 15 ) );
     redis.PERSIST ( "hello" );
-    redis.send_command ( "pttl", "hello", [], test ( "PERSIST / PTTL", null, -1 ) );
-    redis.send_command ( "pexpireat", "hello", Date.now () + 250 );
+    redis.send_command ( "pttl", [ "hello" ], test ( "PERSIST / PTTL", null, -1 ) );
+    redis.send_command ( "pexpireat", [ "hello", Date.now () + 250 ] );
     redis.MSETNX ( "somekey", "someval", "hello", "non-world", test ( "MSETNX is safe", null, 0 ) );
     redis.GET ( "hello", test ( "GET expiring", null, "world" ) );
     redis.APPEND ( "hello", " of mine", test ( "APPEND upset", null, ( "world of mine" ).length ) );
@@ -730,6 +731,57 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
 
     redis1.BLPOP ( "end-message", 0, test ( "Multi + Blocking + Pubsub, end result", null, [ "end-message", "Hello World!" ] ) );
+}
+() );
+
+
+
+    ////    Sort.
+
+( function ()
+{
+    var redis = fake.createClient (),
+        result;
+
+        ////    Simple num and alpha sort.
+
+    redis.LPUSH ( "list", "2", "11", 3, 1 );
+    redis.SORT ( "list", test ( "SORT num", null, [ "1", "2", "3", "11" ] ) );
+    redis.DEL ( "list" );
+
+    redis.LPUSH ( "list", "2", "a", "11", 3, 1, "A", "-", "_", ".", "~", "*" );
+    redis.SORT ( "list", test ( "SORT scorefail", BAD_SORT, null ) );
+    redis.SORT ( "list", "alpha", test ( "SORT alpha", null, [ "*", "-", ".", "1", "11", "2", "3", "A", "_", "a", "~" ] ) );
+    redis.DEL ( "list" );
+
+        ////    By clause.
+
+    redis.LPUSH ( "list", 11, 22, "hello", "abra", "opa" );
+    redis.SET ( "w11w", -1 );
+    redis.SET ( "w22w", 1 );
+    redis.SORT ( "list", "by", "w*w", test ( "SORT num by +MVs, str*", null, [ "11", "abra", "hello", "opa", "22" ] ) );
+    redis.DEL ( "list", "w11w", "w22w" );
+
+        ////    Test BY and GET clauses.
+
+    redis.LPUSH ( "list", 11, 22, 33, 44, 55 );
+    redis.SADD  ( "set",  11, 22, 33, 44, 55 );
+    redis.ZADD  ( "zset", 0, 11, 0, 22, 0, 33, 0, 44, 0, 55 );
+
+    redis.HMSET ( "o11", "name", "tuti", "age", 25 );
+    redis.HMSET ( "o22", "name", "ivo", "age", 26 );
+    redis.HMSET ( "o33", "name", "lino", "age", 27 );
+    redis.HMSET ( "o44", "name", "mina", "age", 20 );
+    redis.HMSET ( "o55", "name", "kemi", "age", 18 );
+
+    result = [ "55", "kemi", "44", "mina", "11", "tuti", "22", "ivo", "33", "lino" ];
+
+    redis.SORT ( "list", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT list by+get, h*->f", null, result ) );
+    redis.SORT ( "set",  "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT set by+get, h*->f",  null, result ) );
+    redis.SORT ( "zset", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT zset by+get, h*->f", null, result ) );
+
+    redis.HSET ( "o11", "age", "not-a-number" );
+    redis.SORT ( "list", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT by+scorefail", BAD_SORT, null ) );
 }
 () );
 
