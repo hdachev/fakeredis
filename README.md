@@ -73,9 +73,9 @@ in a way that ensures they don't collide between tests.
 
 
 
-## Differences from a true Redis
+## Intended differences from a true Redis
 
-The only difference is that the output of some commands,
+One key difference is that the output of some commands,
 such as `SMEMBERS`, `HKEYS`, `HVALS`,
 comes out sorted lexicographically to provide for simpler testing.
 This means that some tests that make use of undocumented Redis behaviours
@@ -84,6 +84,16 @@ may fail when attempted with fakeredis.
 To solve this,
 whenever there is no documented sort order for a given Redis command's multi-bulk reply,
 sort the output before asserting equality to ensure your tests run everywhere.
+
+Another major difference is that commands that accept modifier parameters, such as
+`SORT key [BY pattern] [LIMIT offset count] [GET pattern [GET pattern ...]] [ASC|DESC] [ALPHA] [STORE destination]`
+currently only accept these parameters in the order that is stated in the documentation.
+For example,
+in Redis it appears to be perfectly legitimate to have `SORT myset ALPHA LIMIT 0 5`,
+but in fakeredis this will currently return a syntax error.
+
+I'm open to discussion on both points.
+
 
 
 ### Implemented subset:
@@ -107,6 +117,7 @@ Keyspace:
     RANDOMKEY
     RENAME
     RENAMENX
+    SORT
     TTL
     TYPE
 
@@ -232,10 +243,9 @@ These do nothing but return `OK`:
     SAVE
 
 
-### What's still missing:
+### What's missing:
 
-`SORT` and `MONITOR`.
-Expect both to be implemented soon though.
+Most notably, `MONITOR` is still missing.
 
 Also note that **none of the node_redis client constructor options are available**,
 which means no `detect_buffers` and `return_buffers`.
@@ -247,10 +257,6 @@ none of the `ready`, `connect`, `error`, `end`, `drain` and `idle`
 client events are currently implemented.
 
 List of **missing** commands (will throw upon attempt to use):
-
-Keyspace:
-
-    SORT
 
 Connection and Server:
 
