@@ -140,6 +140,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.ZRANGE ( "myzset", 0, 1, test ( "ZRANGE pos pos", null, [ "one", "two" ] ) );
     redis.ZRANGE ( "myzset", 1, -2, test ( "ZRANGE pos=neg", null, [ "two" ] ) );
     redis.ZRANGE ( "myzset", -1, 1, test ( "ZRANGE null", null, [] ) );
+    redis.ZRANGE ( "myzset", "-inf", "+inf", test ( "ZRANGE int", BAD_INT, null ) );
     redis.ZREVRANGEBYSCORE ( "myzset", "+inf", "-inf", test ( "ZREVRANGEBYSCORE all", null, [ "three", "two", "one" ] ) );
     redis.ZREVRANGEBYSCORE ( "myzset", 2, 1, test ( "ZREVRANGEBYSCORE incl", null, [ "two", "one" ] ) );
     redis.ZREVRANGEBYSCORE ( "myzset", 2, "(1", test ( "ZREVRANGEBYSCORE soso", null, [ "two" ] ) ); 
