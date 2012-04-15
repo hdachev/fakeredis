@@ -820,6 +820,34 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
 
 
+    ////    Keyspace dump.
+
+( function ()
+{
+    var redis = fake.createClient ();
+
+    redis.SET ( "hello", "redis" );
+    redis.SET ( "mykey", "some string" );
+    redis.SADD ( "myset", "m3", "m2", "m1" );
+    redis.ZADD ( "myzset", 10, "zm1", 5, "zm2", -5, "zm3" );
+    redis.HMSET ( "myhash", "field1", "value1", "field2", "value2" );
+    redis.LPUSH ( "mylist", "e1", "e2", "e3" );
+
+    redis.getKeyspace ( "my*", test
+    (
+        "keyspace dump, all types", null,
+        [
+            "myhash", "-1", "hash", [ "field1", "value1", "field2", "value2" ],
+            "mykey",  "-1", "string", "some string",
+            "mylist", "-1", "list", [ "e3", "e2", "e1" ],
+            "myset",  "-1", "set",  [ "m1", "m2", "m3" ],
+            "myzset", "-1", "zset", [ "zm3", "-5", "zm2", "5", "zm1", "10" ]
+        ]
+    ));
+}
+() );
+
+
     ////    Test shorthand.
 
 var TEST_COUNT;
