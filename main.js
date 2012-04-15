@@ -1,5 +1,13 @@
 
 
+/**
+
+    TODO:
+    -   lint negative count and offset LIMITs away,
+        SORT and ZRANGEBYSCORE treat them differently, so it's just confusing and a bad practice.
+
+ **/
+
 var index       = require ( "redis" ),
     Backend     = require ( "./lib/backend" ).Backend,
     Connection  = require ( "./lib/connection" ).Connection,

@@ -108,6 +108,10 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.SISMEMBER ( "nonex", "what", test ( "SISMEMBER nonex", null, 0 ) );
     redis.SISMEMBER ( "hello", "what", test ( "SISMEMBER bad", BAD_TYPE, null ) );
 
+    redis.SADD ( "otherset", "whatever" );
+    redis.SINTERSTORE ( "nothing", "otherset", "output", test ( "SINTERSTORE empty out", null, 0 ) );
+    redis.TYPE ( "nothing", test ( "SINTERSTORE empty out / TYPE", null, "none" ) );
+
     redis.DEL ( "set3" );
     redis.SPOP ( "set3", test ( "SPOP nothing", null, null ) );
     redis.SINTER ( "output", function ( err, members )
@@ -141,7 +145,13 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.ZREVRANGEBYSCORE ( "myzset", 2, "(1", test ( "ZREVRANGEBYSCORE soso", null, [ "two" ] ) ); 
     redis.ZREVRANGEBYSCORE ( "myzset", "(2", "(1", test ( "ZREVRANGEBYSCORE excl", null, [] ) );
     redis.ZADD ( "myzset", 1.5, "one.five" );
-    redis.ZRANGEBYSCORE ( "myzset", "-inf", "+inf", "WITHSCORES", "LIMIT", 1, 2, test ( "ZREVRANGEBYSCORE with limit", null, [ "one.five", "1.5", "two", "2" ] ) );
+    redis.ZRANGEBYSCORE ( "myzset", "-inf", "+inf", "WITHSCORES", "LIMIT", 1, 2, test ( "ZREVRANGEBYSCORE limit", null, [ "one.five", "1.5", "two", "2" ] ) );
+
+        ////    Negative offset behaves differently here and in SORT
+
+    redis.ZRANGEBYSCORE ( "myzset", "-inf", "+inf", "WITHSCORES", "LIMIT", -1, 2, test ( "ZREVRANGEBYSCORE limit +negoffset", null, [] ) );
+    redis.ZRANGEBYSCORE ( "myzset", "-inf", "+inf", "WITHSCORES", "LIMIT", 1, -11, test ( "ZREVRANGEBYSCORE limit +negcount", null, [ "one.five", "1.5", "two", "2", "three", "3" ] ) );
+
     redis.ZCOUNT ( "myzset", "(1", 2, test ( "ZCOUNT", null, 2 ) );
     redis.SET ( "wrong", "indeed" );
     redis.ZREMRANGEBYRANK ( "wrong", 0, -1, test ( "ZREMRANGEBYRANK badkey", BAD_TYPE, null ) );
@@ -227,6 +237,10 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.ZADD ( "lexi", 1, "AAA", 1, "BBB", 1, "ZZZ", 1, "XXX", 1, "YYY", 2, "FFF" );
     redis.ZRANGE ( "lexi", 0, -1, test ( "lexicographic zset member sort", null, [ "AAA", "BBB", "XXX", "YYY", "ZZZ", "FFF" ] ) );
     redis.ZREVRANGE ( "lexi", 0, -1, test ( "lexicographic zset member sort", null, [ "FFF", "ZZZ", "YYY", "XXX", "BBB", "AAA" ] ) );
+
+    redis.ZADD ( "otherzset", 100, "whatever" );
+    redis.ZINTERSTORE ( "nothing", 2, "lexi", "otherzset", test ( "ZINTERSTORE empty out", null, 0 ) );
+    redis.TYPE ( "nothing", test ( "ZINTERSTORE empty out / TYPE", null, "none" ) );
 
 
 
@@ -780,8 +794,23 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.SORT ( "set",  "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT set by+get, h*->f",  null, result ) );
     redis.SORT ( "zset", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT zset by+get, h*->f", null, result ) );
 
+        ////    Negative offset behaves differently here and in ZRANGEBYSCORE
+
+    redis.SORT ( "list", "by", "o*->age", "limit", 0, 2, "get", "#", "get", "o*->name", test ( "SORT limit", null, result.slice ( 0, 4 ) ) );
+    redis.SORT ( "list", "by", "o*->age", "limit", 2, 4, "get", "#", "get", "o*->name", test ( "SORT limit +offset", null, result.slice ( 4 ) ) );
+    redis.SORT ( "list", "by", "o*->age", "limit", 2, -10, "get", "#", "get", "o*->name", test ( "SORT limit +negcount", null, result.slice ( 4 ) ) );
+    redis.SORT ( "list", "by", "o*->age", "limit", -2, 2, "get", "#", "get", "o*->name", test ( "SORT limit +negoffset+negcount", null, result.slice ( 0, 4 ) ) );
+
     redis.HSET ( "o11", "age", "not-a-number" );
     redis.SORT ( "list", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT by+scorefail", BAD_SORT, null ) );
+
+        ////    Edge cases.
+
+    redis.SORT ( "nonex", test ( "SORT nonex", null, [] ) );
+    redis.SORT ( "nonex", "by", "o*->age", test ( "SORT nonex+by", null, [] ) );
+    redis.SORT ( "nonex", "by", "o*->age", "get", "#", "get", "o*->name", test ( "SORT nonex+by+get", null, [] ) );
+    redis.SET ( "hello", "world" );
+    redis.SORT ( "hello", test ( "SORT bad type", BAD_TYPE, null ) );
 }
 () );
 
