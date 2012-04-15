@@ -34,25 +34,48 @@ exports.createClient = function ( port, host, options )
     cl.connected = true;
     cl.ready = true;
 
-    cl.send_command = function ()
+    cl.send_command = function ( command, args, callback )
     {
-        var command, args = [], i, n, callback;
+            ////    Interpret arguments, copy-paste from mranney/redis/index.js for best compat.
 
-        n = arguments.length;
-        for ( i = 0; i < n; i ++ )
-            args = args.concat ( arguments [ i ] );
+        if (typeof command !== "string") {
+            throw new Error("First argument to send_command must be the command name string, not " + typeof command);
+        }
 
-        command = args.shift ();
-        n = args.length;
-        if ( typeof args [ n - 1 ] === 'function' )
-            callback = args.pop ();
+        if (Array.isArray(args)) {
+            if (typeof callback === "function") {
+                // probably the fastest way:
+                //     client.command([arg1, arg2], cb);  (straight passthrough)
+                //         send_command(command, [arg1, arg2], cb);
+            } else if (! callback) {
+                // most people find this variable argument length form more convenient, but it uses arguments, which is slower
+                //     client.command(arg1, arg2, cb);   (wraps up arguments into an array)
+                //       send_command(command, [arg1, arg2, cb]);
+                //     client.command(arg1, arg2);   (callback is optional)
+                //       send_command(command, [arg1, arg2]);
+                //     client.command(arg1, arg2, undefined);   (callback is undefined)
+                //       send_command(command, [arg1, arg2, undefined]);
+                last_arg_type = typeof args[args.length - 1];
+                if (last_arg_type === "function" || last_arg_type === "undefined") {
+                    callback = args.pop();
+                }
+            } else {
+                throw new Error("send_command: last argument must be a callback or undefined");
+            }
+        } else {
+            throw new Error("send_command: second argument must be an array");
+        }
 
-            ////    Inner array as last argument.
+        // if the last argument is an array, expand it out.  This allows commands like this:
+        //     client.command(arg1, [arg2, arg3, arg4], cb);
+        //  and converts to:
+        //     client.command(arg1, arg2, arg3, arg4, cb);
+        // which is convenient for some things like sadd
+        if (Array.isArray(args[args.length - 1])) {
+            args = args.slice(0, -1).concat(args[args.length - 1]);
+        }
 
-        if ( n )
-            args = flattenArgs ( args );
-
-            ////    Lint arguments.
+            ////    Lint args.
 
         if ( !options || !options.no_lint )
         {
@@ -110,19 +133,5 @@ function reply_to_object(reply) {
     }
 
     return obj;
-}
-
-function flattenArgs ( args )
-{
-    // if the last argument is an array, expand it out.  This allows commands like this:
-    //     client.command(arg1, [arg2, arg3, arg4], cb);
-    //  and converts to:
-    //     client.command(arg1, arg2, arg3, arg4, cb);
-    // which is convenient for some things like sadd
-    if (args.length > 0 && Array.isArray(args[args.length - 1])) {
-        args = args.slice(0, -1).concat(args[args.length - 1]);
-    }
-
-    return args;
 }
 
