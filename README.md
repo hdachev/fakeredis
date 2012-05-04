@@ -92,7 +92,7 @@ For example,
 in Redis it appears to be perfectly legitimate to have `SORT myset ALPHA LIMIT 0 5`,
 but in fakeredis this will currently return a syntax error.
 
-I'm open to discussion on both points.
+I'm totally open to discussion on both points.
 
 
 
