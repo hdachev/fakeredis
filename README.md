@@ -6,18 +6,9 @@
 This module provides easy-to-use simulated instances of Redis
 to which you appear to be connected via the pretty much standard
 [redis](https://github.com/mranney/node_redis) client by [Matt Ranney](https://github.com/mranney).
-It's not meant to be persistant nor efficient,
-instead it's only purpose is to help with testing systems
-that do a lot of datastructure mumbo-jumbo etc,
-such as high-level datastructures
-like social graph implementations
-or perhaps an autocomplete, etc.
-
-Currently works by rewiring the send_command method on the RedisClient object
-to push the commands to a simulated backend via a bogus connection
-that does a little bit in the line of imitating pipelining and network latency,
-but like - very little.
-
+**It helps with writing tests** in two ways:
+your tests won't require an actual redis instance
+and you'll be able to safely run as many tests in parallel as you want.
 
 
 ## Usage
@@ -447,7 +438,14 @@ vows.describe ( "fakeredis" ).addBatch
 ```
 
 
-## LICENSE - MIT
+## Similar projects
+
+You might also want to check out these similar implementations in
+[python](https://github.com/jamesls/fakeredis) and
+[ruby](https://github.com/guilleiguaran/fakeredis).
+
+
+## MIT License
 
 Copyright (c) 2012 Hristo Dachev, http://bulklabs.com/
 
