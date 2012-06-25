@@ -850,11 +850,13 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     ////    Test shorthand.
 
-var TEST_COUNT;
+var TEST_COUNT = 0,
+    numErrors  = 0;
+
 function test ( name, xErr, xData )
 {
-    if ( !TEST_COUNT ) TEST_COUNT = 0;
-    var timeout, c = ++ TEST_COUNT;
+    var timeout,
+        c = ++ TEST_COUNT;
 
     xErr  = JSON.stringify ( xErr );
     xData = JSON.stringify ( xData );
@@ -863,6 +865,7 @@ function test ( name, xErr, xData )
     (
         function ()
         {
+            numErrors ++;
             process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\tDidn\'t call back.\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
         },
         5000
@@ -884,9 +887,33 @@ function test ( name, xErr, xData )
 
         if ( err === xErr && data === xData )
             process.stdout.write ( '\033[1;32m  ✓ #' + c + ' ' + name + '\033[0m\n' );
+
         else
+        {
+            numErrors ++;
             process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\terr  = ' + err + '\t\tdata  = ' + data + '\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
+        }
     };
 }
+
+var doexit = false;
+process.on ( 'exit', function ()
+{
+    if ( doexit )
+        return;
+    doexit = true;
+
+    if ( !numErrors )
+    {
+        process.stdout.write ( '\n\033[1;32m  ✓ All good.\033[0m\n' );
+        process.exit ( 0 );
+    }
+
+    else
+    {
+        process.stdout.write ( '\033[1;31m\n  ✗ ' + numErrors + ' broken.\033[0m\n' );
+        process.exit ( 1 );
+    }
+});
 
 

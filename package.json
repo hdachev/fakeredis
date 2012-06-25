@@ -14,5 +14,8 @@
     "repository" : {
         "type" : "git",
         "url" : "git://github.com/hdachev/fakeredis.git"
+    },
+    "scripts" : {
+        "test" : "node test"
     }
 }
