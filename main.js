@@ -33,8 +33,7 @@ exports.createClient = function ( port, host, options )
     var id  = !port && !host ? 'fake_' + ( ++ anon ) : ( host || "" ) + ( port || "" ),
         c   = new Connection ( backends [ id ] || ( backends [ id ] = new Backend ) ),
         cl  = new RedisClient ( { on : function () {} } /* , options */ ),
-        ns  = options && options.no_sugar,
-        sc  = 0;
+        ns  = options && options.no_sugar;
 
     if ( options && options.verbose )
         c.verbose = true;
@@ -63,7 +62,7 @@ exports.createClient = function ( port, host, options )
                 //       send_command(command, [arg1, arg2]);
                 //     client.command(arg1, arg2, undefined);   (callback is undefined)
                 //       send_command(command, [arg1, arg2, undefined]);
-                last_arg_type = typeof args[args.length - 1];
+                var last_arg_type = typeof args[args.length - 1];
                 if (last_arg_type === "function" || last_arg_type === "undefined") {
                     callback = args.pop();
                 }
@@ -87,6 +86,7 @@ exports.createClient = function ( port, host, options )
 
         if ( !options || !options.no_lint )
         {
+            var i, n;
             n = args.length;
             for ( i = 0; i < n; i ++ )
                 if ( typeof args [ i ] !== 'string' && typeof args [ i ] !== 'number' )
@@ -95,6 +95,7 @@ exports.createClient = function ( port, host, options )
 
             ////    You can disable hash sugar with the no_sugar option.
 
+        var cb;
         if ( callback && !ns && /^hgetall/i.test ( command ) )
             cb = function ( err, data )
             {
