@@ -11,7 +11,7 @@ var fake        = require ( "./main" ),
     BAD_FLOAT   = "value is not a valid float",
     BAD_SYNTAX  = "syntax error",
     BAD_INDEX   = "index out of range",
-    BAD_SETEX   = "invalid expire time in SETEX"
+    BAD_SETEX   = "invalid expire time in SETEX",
     BAD_SORT    = "One or more scores can't be converted into double";
 
 
@@ -178,7 +178,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis.ZUNIONSTORE
     (
-        "out", /* 4, */ "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, .5, "aggregate", "max",
+        "out", /* 4, */ "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, 0.5, "aggregate", "max",
         test ( "ZUNIONSTORE missing keycount", BAD_INT, null )
     );
     redis.ZUNIONSTORE
@@ -188,17 +188,17 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     );
     redis.ZUNIONSTORE
     (
-        "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, .5, 10, "aggregate", "max",
+        "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, 0.5, 10, "aggregate", "max",
         test ( "ZUNIONSTORE bad weight count (more)", BAD_ARGS, null )
     );
     redis.ZUNIONSTORE
     (
-        "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, .5, "aggregate", /* "max", */
+        "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2, 0.5, "aggregate", /* "max", */
         test ( "ZUNIONSTORE missing aggregate", BAD_ARGS, null )
     );
     redis.ZUNIONSTORE
     (
-        "out", 4, "nonex", "zset1", "zset2", "out", /* "weights", */ 10, 1, 2, .5, "aggregate", "max",
+        "out", 4, "nonex", "zset1", "zset2", "out", /* "weights", */ 10, 1, 2, 0.5, "aggregate", "max",
         test ( "ZUNIONSTORE missing weight keyword", BAD_ARGS, null )
     );
 
@@ -496,7 +496,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     sub1.on ( 'message', function ( channel, message )
     {
-        var x = data [ 1 ].push ( channel + '-' + message );
+        data [ 1 ].push ( channel + '-' + message );
 
         if ( message === 'alpha' )
             pub.PUBLISH ( 'mych', 'beta', test ( 'PUB2', null, 3 ) );
@@ -568,7 +568,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 {
     var pub  = fake.createClient ( "pubsub-2" ),
         sub1 = fake.createClient ( "pubsub-2" ),
-        sub2 = fake.createClient ( "pubsub-2" );
+        sub2 = fake.createClient ( "pubsub-2" ),
 
         un1  = [],
         tcb1 = test ( "PUBSUB UNSUBSCRIBE from all", null, [ "one", 3, "two", 2, "three", 1 ] ),
@@ -635,7 +635,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
         start ();
     });
 
-    var start = function ()
+    function start ()
     {
         x ++;
         if ( x < 8 )
@@ -659,7 +659,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
         end ();
     });
 
-    var end = function ()
+    function end ()
     {
         y ++;
         if ( y < 4 )
@@ -850,13 +850,12 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     ////    Test shorthand.
 
-var TEST_COUNT = 0,
-    numErrors  = 0;
+var TEST_COUNT, numErrors;
 
 function test ( name, xErr, xData )
 {
     var timeout,
-        c = ++ TEST_COUNT;
+        c = TEST_COUNT = ( TEST_COUNT || 0 ) + 1;
 
     xErr  = JSON.stringify ( xErr );
     xData = JSON.stringify ( xData );
@@ -865,7 +864,7 @@ function test ( name, xErr, xData )
     (
         function ()
         {
-            numErrors ++;
+            numErrors = ( numErrors || 0 ) + 1;
             process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\tDidn\'t call back.\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
         },
         5000
@@ -890,7 +889,7 @@ function test ( name, xErr, xData )
 
         else
         {
-            numErrors ++;
+            numErrors = ( numErrors || 0 ) + 1;
             process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\terr  = ' + err + '\t\tdata  = ' + data + '\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
         }
     };
