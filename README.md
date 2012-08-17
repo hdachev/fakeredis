@@ -10,6 +10,8 @@ to which you appear to be connected via the pretty much standard
 your tests won't require an actual redis instance
 and you'll be able to safely run as many tests in parallel as you want.
 
+[![Build Status](https://secure.travis-ci.org/hdachev/fakeredis.png?branch=master)](http://travis-ci.org/hdachev/fakeredis)
+
 
 ## Usage
 
