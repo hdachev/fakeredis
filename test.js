@@ -249,7 +249,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis.HGETALL ( "nonex", test ( "HGETALL nonex", null, null ) );
 
-    redis.HMSET ( "h", { "f1" : "v1", "field-3" : 3 }, test ( "HMSET {} ok", null, OK ) );
+    redis.HMSET ( "h", { "f1" : "v1", "field-3" : "3" }, test ( "HMSET {} ok", null, OK ) );
     redis.HMSET ( "h", "f2", "v2", "field-4", 4, test ( "HMSET ... ok", null, OK ) );
 
     redis.HSETNX ( "h", "f1", "V1", test ( "HSETNX safe", null, 0 ) );
