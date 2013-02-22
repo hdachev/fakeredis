@@ -1,4 +1,4 @@
-
+"use strict";
 
 var fake        = require ( "./main" ),
 
@@ -143,7 +143,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.ZRANGE ( "myzset", "-inf", "+inf", test ( "ZRANGE int", BAD_INT, null ) );
     redis.ZREVRANGEBYSCORE ( "myzset", "+inf", "-inf", test ( "ZREVRANGEBYSCORE all", null, [ "three", "two", "one" ] ) );
     redis.ZREVRANGEBYSCORE ( "myzset", 2, 1, test ( "ZREVRANGEBYSCORE incl", null, [ "two", "one" ] ) );
-    redis.ZREVRANGEBYSCORE ( "myzset", 2, "(1", test ( "ZREVRANGEBYSCORE soso", null, [ "two" ] ) ); 
+    redis.ZREVRANGEBYSCORE ( "myzset", 2, "(1", test ( "ZREVRANGEBYSCORE soso", null, [ "two" ] ) );
     redis.ZREVRANGEBYSCORE ( "myzset", "(2", "(1", test ( "ZREVRANGEBYSCORE excl", null, [] ) );
     redis.ZADD ( "myzset", 1.5, "one.five" );
     redis.ZRANGEBYSCORE ( "myzset", "-inf", "+inf", "WITHSCORES", "LIMIT", 1, 2, test ( "ZREVRANGEBYSCORE limit", null, [ "one.five", "1.5", "two", "2" ] ) );
@@ -337,7 +337,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.BGREWRITEAOF ( test ( "BGREWRITEAOF", null, "OK" ) );
 
 
-    
+
         ////    Expiry and flush.
 
     setTimeout
@@ -865,7 +865,7 @@ function test ( name, xErr, xData )
         function ()
         {
             numErrors = ( numErrors || 0 ) + 1;
-            process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\tDidn\'t call back.\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
+            process.stdout.write ( '\x1B[1;31m\n  ✗ #' + c + ' ' + name + '\x1B[0m:\n\tDidn\'t call back.\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
         },
         5000
     );
@@ -885,12 +885,12 @@ function test ( name, xErr, xData )
             data = data.toString ();
 
         if ( err === xErr && data === xData )
-            process.stdout.write ( '\033[1;32m  ✓ #' + c + ' ' + name + '\033[0m\n' );
+            process.stdout.write ( '\x1B[1;32m  ✓ #' + c + ' ' + name + '\x1B[0m\n' );
 
         else
         {
             numErrors = ( numErrors || 0 ) + 1;
-            process.stdout.write ( '\033[1;31m\n  ✗ #' + c + ' ' + name + '\033[0m:\n\terr  = ' + err + '\t\tdata  = ' + data + '\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
+            process.stdout.write ( '\x1B[1;31m\n  ✗ #' + c + ' ' + name + '\x1B[0m:\n\terr  = ' + err + '\t\tdata  = ' + data + '\n\txErr = ' + xErr + '\t\txData = ' + xData + '\n\n' );
         }
     };
 }
@@ -904,13 +904,13 @@ process.on ( 'exit', function ()
 
     if ( !numErrors )
     {
-        process.stdout.write ( '\n\033[1;32m  ✓ All good.\033[0m\n' );
+        process.stdout.write ( '\n\x1B[1;32m  ✓ All good.\x1B[0m\n' );
         process.exit ( 0 );
     }
 
     else
     {
-        process.stdout.write ( '\033[1;31m\n  ✗ ' + numErrors + ' broken.\033[0m\n' );
+        process.stdout.write ( '\x1B[1;31m\n  ✗ ' + numErrors + ' broken.\x1B[0m\n' );
         process.exit ( 1 );
     }
 });
