@@ -275,6 +275,12 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
         redis.TYPE ( "h", test ( "TYPE none", null, "none" ) );
     });
 
+    redis.HDEL( 'hnonex', 'moot', test( "HDEL nonex", null, 0 ) );
+    redis.HSET( 'w00t', 'field', 'value', function( err, ok ) {
+        redis.HDEL( 'w00t', 'moot', test( "HDEL nonex field", null, 0 ) );
+    });
+
+
 
 
         ////    Lists, non-blocking.
