@@ -315,6 +315,8 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis.getKeyspace ( "*list*", test ( "lists outcome", null, [ "list3", "-1", "list", [ "three", "two" ], "newlist", "-1", "list", [ "what", "where", "why" ] ] ) );
 
+    redis.LREM( "lnonex", 1, "what", test( "LREM nonex", null, 0 ) );
+
 
 
         ////    Blocking list commands !
