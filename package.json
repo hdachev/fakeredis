@@ -1,21 +1,21 @@
-{   "name" : "fakeredis",
-    "version" : "0.0.14",
-    "description" : "Fake redis for testing, works as a drop-in replacement for node_redis",
-    "keywords" : [ "testing", "spec", "fake", "fake", "redis", "client" ],
-    "author" : "Hristo Dachev <tutini@gmail.com>",
-    "main" : "./main.js",
-    "dependencies" : {
-        "redis" : "0.8.x"
+{   "name": "fakeredis",
+    "version": "0.1.0",
+    "description": "Fake redis for testing, works as a drop-in replacement for node_redis",
+    "keywords": [ "test", "spec", "fake", "redis", "simulated", "implementation", "client" ],
+    "author": "Hristo Dachev <tutini@gmail.com>",
+    "main": "./main.js",
+    "dependencies": {
+        "redis": ">= 0.7.2"
     },
-    "bugs" : {
-        "mail" : "tutini@gmail.com",
-        "url" : "http://github.com/hdachev/fakeredis/issues"
+    "bugs": {
+        "mail": "tutini@gmail.com",
+        "url": "http://github.com/hdachev/fakeredis/issues"
     },
-    "repository" : {
-        "type" : "git",
-        "url" : "git://github.com/hdachev/fakeredis.git"
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/hdachev/fakeredis.git"
     },
-    "scripts" : {
-        "test" : "node test"
+    "scripts": {
+        "test": "node test"
     }
 }
