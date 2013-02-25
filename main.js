@@ -1,5 +1,13 @@
 "use strict";
 
+
+// By default fakeredis simulates a ridiculous amount of network latency
+// to help you discover race-conditions when testing multi-client setups.
+// Instantiate your 'clients' with a truthy .fast option,
+// or set it here globally to make things go a bit faster.
+exports.fast = false;
+
+
 /**
 
     TODO:
@@ -31,7 +39,8 @@ exports.print       = index.print;
 exports.createClient = function ( port, host, options )
 {
     var id  = !port && !host ? 'fake_' + ( ++ anon ) : ( host || "" ) + ( port || "" ),
-        c   = new Connection ( backends [ id ] || ( backends [ id ] = new Backend ) ),
+        lat = options && options.fast || exports.fast ? 1 : null,
+        c   = new Connection ( backends [ id ] || ( backends [ id ] = new Backend ), lat, lat ),
         cl  = new RedisClient ( { on : function () {} } /* , options */ ),
         ns  = options && options.no_sugar;
 
