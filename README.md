@@ -227,6 +227,7 @@ Connection and Server:
     ECHO
     PING
     QUIT
+    SELECT
 
 These do nothing but return `OK`:
 
@@ -264,7 +265,6 @@ Connection and Server:
     MONITOR
     MOVE
     OBJECT
-    SELECT
     SHUTDOWN
     SLAVEOF
     SYNC

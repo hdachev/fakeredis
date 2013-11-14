@@ -856,6 +856,64 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 () );
 
 
+// Select.
+(function () {
+
+    var redis1 = fake.createClient("select-test");
+    var redis2 = fake.createClient("select-test");
+    var redis3 = fake.createClient("select-test");
+
+    var finish = test("SELECT, cross-database pubsub", null, "Hey you!");
+
+    redis2.SUBSCRIBE("PASS");
+    redis2.on('message', function(channel, message) {
+        finish(null, message);
+    });
+
+    redis1.SET("A", "Hola");
+    redis1.SELECT(1, test("SELECT 1", null, OK));
+
+    redis1.GET("A", test("SELECT, keyspace isolation", null, null));
+    redis1.SET("A", "Hello", function() {
+
+        redis3.GET("A", test("SELECT, connection selection isolation", null, "Hola"));
+        redis3.SET("A", "Hola!!!", function() {
+
+            redis1.SELECT(0, test("SELECT 0", null, OK));
+            redis1.GET("A", test("SELECT, keyspace switching", null, "Hola!!!"));
+
+            redis1.SELECT(-1, test("SELECT BAD_INDEX neg", BAD_INDEX, null));
+            redis1.SELECT("X", test("SELECT BAD_INDEX X", BAD_INDEX, null));
+            redis1.SELECT(111.4, test("SELECT BAD_INDEX float", BAD_INDEX, null));
+
+            redis1.SELECT(2000, test("SELECT 2000", null, OK));
+            redis1.PUBLISH("PASS", "Hey you!");
+        });
+    });
+} ());
+
+
+// Select with blocking.
+(function () {
+
+    var redis1 = fake.createClient("select-test2");
+    var redis2 = fake.createClient("select-test2");
+    var redis3 = fake.createClient("select-test2");
+
+    redis1.BLPOP("list", "other", 1, test("SELECT 0 + BLPOP", null, ["list", "hello list in 0"]));
+
+    redis2.SELECT(1);
+    redis2.BRPOP("other", "list", 1, test("SELECT 1 + BRPOP", null, ["list", "hello list in 1"]));
+
+    redis3.SELECT(2);
+    redis3.LPUSH("list", "wrong!");
+    redis3.SELECT(1);
+    redis3.LPUSH("list", "hello list in 1");
+    redis3.SELECT(0);
+    redis3.RPUSH("list", "hello list in 0");
+} ());
+
+
     ////    Test shorthand.
 
 var TEST_COUNT, numErrors;
