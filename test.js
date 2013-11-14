@@ -11,6 +11,7 @@ var fake        = require ( "./main" ),
     BAD_FLOAT   = "value is not a valid float",
     BAD_SYNTAX  = "syntax error",
     BAD_INDEX   = "index out of range",
+    BAD_DB      = "invalid DB index",
     BAD_SETEX   = "invalid expire time in SETEX",
     BAD_SORT    = "One or more scores can't be converted into double";
 
@@ -882,9 +883,9 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
             redis1.SELECT(0, test("SELECT 0", null, OK));
             redis1.GET("A", test("SELECT, keyspace switching", null, "Hola!!!"));
 
-            redis1.SELECT(-1, test("SELECT BAD_INDEX neg", BAD_INDEX, null));
-            redis1.SELECT("X", test("SELECT BAD_INDEX X", BAD_INDEX, null));
-            redis1.SELECT(111.4, test("SELECT BAD_INDEX float", BAD_INDEX, null));
+            redis1.SELECT(-1, test("SELECT BAD_DB neg", BAD_DB, null));
+            redis1.SELECT("X", test("SELECT BAD_DB X", BAD_DB, null));
+            redis1.SELECT(111.4, test("SELECT BAD_DB float", BAD_DB, null));
 
             redis1.SELECT(2000, test("SELECT 2000", null, OK));
             redis1.PUBLISH("PASS", "Hey you!");
