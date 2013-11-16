@@ -10,8 +10,8 @@ to which you appear to be connected via the
 your tests won't require an actual redis instance
 and you'll be able to safely run as many tests in parallel as you want.
 
+[![NPM Version](https://nodei.co/npm/fakeredis.png?downloads=true)](https://npmjs.org/package/fakeredis)
 [![Build Status](https://secure.travis-ci.org/hdachev/fakeredis.png?branch=master)](http://travis-ci.org/hdachev/fakeredis)
-[![NPM Version](https://badge.fury.io/js/fakeredis.png)](https://npmjs.org/package/fakeredis)
 
 
 ## Usage
