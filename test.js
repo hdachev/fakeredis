@@ -318,6 +318,12 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis.LREM( "lnonex", 1, "what", test( "LREM nonex", null, 0 ) );
 
+    redis.LPUSH("lremlist", "a", "b", "b", "a", "b", "b", test("LPUSH", null, 6));
+    redis.LREM("lremlist", 0, "a", test("LREM 0", null, 2));
+    redis.LLEN("lremlist", test("LLEN", null, 4));
+    redis.LREM("lremlist", 0, "b", test("LREM 0", null, 4));
+    redis.LLEN("lremlist", test("LLEN empty", null, 0));
+
 
 
         ////    Blocking list commands !
