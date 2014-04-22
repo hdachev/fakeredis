@@ -50,7 +50,11 @@ exports.createClient = function ( port, host, options )
     cl.connected = true;
     cl.ready = true;
 
-    cl.end = function() { };
+    cl.end = function() {
+        cl.send_command = function(command) {
+            throw new Error("fakeredis: You've closed this connection with .end(), cannot " + command);
+        };
+    };
 
     cl.send_command = function ( command, args, callback )
     {
