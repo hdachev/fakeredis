@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## v0.1.4 - April 22, 2014
+## v0.1.5 - April 22, 2014
 
 * Bugfix: client.end() throws.
 
