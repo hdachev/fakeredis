@@ -50,6 +50,8 @@ exports.createClient = function ( port, host, options )
     cl.connected = true;
     cl.ready = true;
 
+    cl.end = function() { };
+
     cl.send_command = function ( command, args, callback )
     {
             ////    Interpret arguments, copy-paste from mranney/redis/index.js for best compat.

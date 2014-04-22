@@ -897,6 +897,11 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
             redis1.PUBLISH("PASS", "Hey you!");
         });
     });
+
+    // client.end() shouldn't throw.
+    redis1.end();
+    redis2.end();
+    redis3.end();
 } ());
 
 
