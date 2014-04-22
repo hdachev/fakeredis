@@ -859,6 +859,9 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
             "myzset", "-1", "zset", [ "zm3", "-5", "zm2", "5", "zm1", "10" ]
         ]
     ));
+
+    //
+    redis.end();
 }
 () );
 
@@ -897,11 +900,6 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
             redis1.PUBLISH("PASS", "Hey you!");
         });
     });
-
-    // client.end() shouldn't throw.
-    redis1.end();
-    redis2.end();
-    redis3.end();
 } ());
 
 
