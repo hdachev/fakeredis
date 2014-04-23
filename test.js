@@ -974,9 +974,23 @@ function test ( name, xErr, xData )
     };
 }
 
-var doexit = false;
-var NUM_TESTS = 247;
 
+// Suite self-validate and known test count check.
+
+function countTests() {
+
+  // Counts the number of tests in tests.js,
+  // this does count the function test definition,
+  // but the TEST_COUNT is +1 anyway, so it's ok.
+  var tests = require('fs').readFileSync('./test.js', 'utf8');
+  return tests.match(/test *\(/g).length;
+}
+
+var NUM_TESTS = countTests();
+if (NUM_TESTS !== 247)
+    throw new Error("Test count is off: " + NUM_TESTS);
+
+var doexit = false;
 process.on ( 'exit', function ()
 {
     if ( doexit )
