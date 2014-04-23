@@ -1,0 +1,6 @@
+{ "node": true
+, "supernew": true
+, "laxcomma": true
+, "laxbreak": true
+, "unused": true
+}

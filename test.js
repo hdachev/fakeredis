@@ -926,7 +926,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     ////    Test shorthand.
 
-var TEST_COUNT, numErrors;
+var TEST_COUNT, numErrors, numOk;
 
 function test ( name, xErr, xData )
 {
@@ -961,7 +961,10 @@ function test ( name, xErr, xData )
             data = data.toString ();
 
         if ( err === xErr && data === xData )
+        {
+            numOk = (numOk || 0) + 1;
             process.stdout.write ( '\x1B[1;32m  ✓ #' + c + ' ' + name + '\x1B[0m\n' );
+        }
 
         else
         {
@@ -972,20 +975,23 @@ function test ( name, xErr, xData )
 }
 
 var doexit = false;
+var NUM_TESTS = 247;
+
 process.on ( 'exit', function ()
 {
     if ( doexit )
         return;
-    doexit = true;
 
-    if ( !numErrors )
-    {
-        process.stdout.write ( '\n\x1B[1;32m  ✓ All good.\x1B[0m\n' );
+    if (TEST_COUNT > NUM_TESTS)
+        throw new Error("Update NUM_TESTS when adding stuff to the test suite.");
+
+    doexit = true;
+    if (!numErrors && numOk === TEST_COUNT && numOk === NUM_TESTS) {
+        process.stdout.write ( '\n\x1B[1;32m  ✓ All good (' + numOk + ').\x1B[0m\n' );
         process.exit ( 0 );
     }
 
-    else
-    {
+    else {
         process.stdout.write ( '\x1B[1;31m\n  ✗ ' + numErrors + ' broken.\x1B[0m\n' );
         process.exit ( 1 );
     }
