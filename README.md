@@ -235,7 +235,7 @@ These do nothing but return `OK`:
 
 ### What's missing:
 
-Most notably, `MONITOR` is still missing.
+Most notably, there's no support for Lua scripting and `MONITOR` is still missing.
 
 Also note that **none of the node_redis client constructor options are available**,
 which means no `detect_buffers` and `return_buffers`.
@@ -264,120 +264,6 @@ Connection and Server:
     SHUTDOWN
     SLAVEOF
     SYNC
-
-
-
-## Helpers
-
-To facilitate development and testing,
-fakeredis provides some additional methods on the client object.
-
-
-### Prettyprinting:
-
-```javascript
-fakeredisClient.pretty();
-fakeredisClient.pretty("p*tte?n");
-fakeredisClient.pretty(options);
-```
-
-`.pretty()` will prettyprint to stdout the entire keyspace
-or a subset of keys specificed with a redis pattern
-of the same kind that's used for `KEYS` and `PSUBSCRIBE`.
-Keep in mind .pretty() is async,
-because it works as a normal client command
-and hence needs to respect the command order,
-fake pipelining and latency and all,
-so that you can do stuff like:
-
-```javascript
-var client = require("fakeredis").createClient();
-
-client.SADD('hello', 'world', 'Jenny', 'Sam');
-client.LPUSH('mylist', 'hey', 'ho', 'letsgo');
-client.pretty({label: "my stuff", pattern: "*"});
-```
-
-Which would print *(in color!)*
-
-    my stuff:
-
-    set     hello
-    -1      Jenny,  Sam,    world
-
-    list    mylist
-    -1      letsgo, ho,     hey
-
-
-### Keyspace dumps:
-
-```javascript
-fakeredisClient.getKeypsace(callback);
-fakeredisClient.getKeypsace("p*tte?n", callback);
-fakeredisClient.getKeyspace(options, callback);
-```
-
-Will `callback(err, data)` with an array
-that enumerates the whole keyspace,
-or the requested subset, in the following manner:
-
-```javascript
-[ key1, ttl1, type1, value1
-, key2, ttl2, type2, value2
-, ... ]
-```
-
-The keyspace is sorted lexicographically by key,
-string values are strings,
-list values are the output of `LRANGE 0 -1`,
-hashes come out as the output of `HGETALL` for hashes
-(no syntactic sugar though, so an Array of `[field, value, field, value, ...]`),
-`SMEMBERS` output is used for sets,
-and `ZRANGE 0 -1 WITHSCORES` for sorted sets,
-each of which is sorted lexicographically in a way that makes sense,
-so that the final result is simple enough to assert deep equality against.
-
-In any case, you'll probably need to reformat these keyspace dumps
-to a format that makes more sense for your testing needs.
-There are a couple of transforms that are included out of the box:
-
-```javascript
-fakeredisClient.getKeypsace({pattern: "myz*", map: true}, callback);
-```
-
-If you only care about the key and value of each entry,
-you can set the **map** option to a truthy value,
-you will instead receive the keyspace dump as a key-value map of the kind:
-
-```javascript
-{ key1: value1, key2: value2, ... }
-```
-
-This means you're skipping ttl and key type info though. You can also do:
-
-```javascript
-fakeredisClient.getKeypsace({pattern: "myz*", group: true}, callback);
-```
-
-Which will return an `Array` of `Array`s,
-one for each keyspace entry, so that you end up with:
-
-```javascript
-[ [ key1, ttl1, type1, value1 ]
-, [ key2, ttl2, type2, value2 ]
-, ... ]
-```
-
-The benefit of this option is that you can sort the outer array as you like more easily.
-
-
-
-## Similar projects
-
-You might also want to check out these similar implementations in
-[python](https://github.com/jamesls/fakeredis) and
-[ruby](https://github.com/guilleiguaran/fakeredis).
-
 
 
 ## MIT License
