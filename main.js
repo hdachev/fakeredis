@@ -204,6 +204,25 @@ function reply_to_object(reply) {
 var BUFFER_PREFIX = "\t!bUF?!1\t";
 
 function packageBuffer(buf) {
+
+  // If possible, try storing the buffer as a utf8 string.
+  // For this to work baking the string back to a buffer must yield the exact same bytes.
+  var asString = buf.toString('utf8');
+  var enc = new Buffer(asString, 'utf8');
+  var n = enc.length;
+  if (n === buf.length) {
+    var ok = true;
+    while (n--)
+      if (buf[n] !== enc[n]) {
+        ok = false;
+        break;
+      }
+
+    if (ok)
+      return asString;
+  }
+
+  // If not possible, keep the buffer as a prefixed, base64 encoded string internally.
   return BUFFER_PREFIX + buf.toString('base64');
 }
 
