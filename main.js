@@ -1,20 +1,11 @@
 "use strict";
 
-
 // By default fakeredis simulates a ridiculous amount of network latency
 // to help you discover race-conditions when testing multi-client setups.
 // Instantiate your 'clients' with a truthy .fast option,
 // or set it here globally to make things go a bit faster.
+
 exports.fast = false;
-
-
-/**
-
-    TODO:
-    -   lint negative count and offset LIMITs away,
-        SORT and ZRANGEBYSCORE treat them differently, so it's just confusing and a bad practice.
-
- **/
 
 var index = require("redis")
   , Backend = require("./lib/backend").Backend
@@ -41,7 +32,9 @@ exports.createClient = function(port, host, options) {
     , lat = options && options.fast || exports.fast ? 1 : null
     , c = new Connection(backends[id] || (backends[id] = new Backend), lat, lat)
     , cl = new RedisClient({ on: function() {} }/* , options */)
-    , ns = options && options.no_sugar;
+
+    , returnBuffers = options && options.return_buffers
+    , detectBuffers = options && options.detect_buffers;
 
   if (options && options.verbose)
     c.verbose = true;
@@ -56,8 +49,8 @@ exports.createClient = function(port, host, options) {
   };
 
   cl.send_command = function(command, args, callback) {
-    // Interpret arguments, copy-paste from mranney/redis/index.js for best compat.
 
+    // Interpret arguments, copy-paste from mranney/redis/index.js for best compat.
     if (typeof command !== "string") {
       throw new Error("First argument to send_command must be the command name string, not " + typeof command);
     }
@@ -95,31 +88,49 @@ exports.createClient = function(port, host, options) {
       args = args.slice(0, - 1).concat(args[args.length - 1]);
     }
 
-    // Lint args.
 
-    if (!options || !options.no_lint) {
-      var i, n;
-      n = args.length;
-      for (i = 0; i < n; i++)
-        if (typeof args[i] !== 'string' && typeof args[i] !== 'number')
-          throw new Error("fakeredis/lint: Argument #" + i + " for " + command + " is not a String or Number: " + args[i]);
+    // Arg check.
+
+    var useBuffers = returnBuffers;
+    var i, n;
+    n = args.length;
+    for (i = 0; i < n; i++) {
+      var arg = args[i];
+
+      // buf support
+      if (Buffer.isBuffer(arg)) {
+        args[i] = packageBuffer(arg);
+        if (detectBuffers)
+          useBuffers = true;
+      }
+
+      // lint
+      else if (typeof arg !== 'string' && typeof arg !== 'number') {
+        var err = new Error("fakeredis/lint: Argument #" + i + " for " + command + " is not a String, Buffer or Number: " + arg);
+        if (callback)
+          return callback(err);
+        else
+          throw err;
+      }
     }
 
-    // You can disable hash sugar with the no_sugar option.
 
-    var cb;
-    if (callback && !ns && /^hgetall/i.test(command))
-      cb = function(err, data) {
-        if (!err && data)
-          data = reply_to_object(data);
+    // Callback middleware.
 
-        callback(err, data);
-      };
+    if (callback) {
 
-    else
-      cb = callback;
+      // hgetall sugar
+      if (/^hgetall/i.test(command))
+        callback = makeReplyToObjectAdaptor(callback);
 
-    c.push(this, command, args, cb);
+      // buffer support
+      callback = makeUnpackageBuffersAdaptor(useBuffers, callback);
+    }
+
+
+    //
+
+    c.push(this, command, args, callback);
   };
 
   cl.pushMessage = cl.emit.bind(cl);
@@ -131,8 +142,41 @@ exports.createClient = function(port, host, options) {
   }
   ());
 
+
+  // Schedule some events.
+
+  process.nextTick(function() {
+    cl.ready = true;
+    cl.emit('ready');
+  });
+
+
+  //
   return cl;
 };
+
+
+//
+
+function makeReplyToObjectAdaptor(callback) {
+  return function(err, data) {
+    if (!err && data)
+      data = reply_to_object(data);
+
+    callback(err, data);
+  };
+}
+
+function makeUnpackageBuffersAdaptor(returnAsBuffers, callback) {
+  return function(err, data) {
+    if (!err)
+      data = returnAsBuffers
+        ? unpackageBuffersAsObjects(data)
+        : unpackageBuffersAsStrings(data);
+
+    callback(err, data);
+  };
+}
 
 
 // Helpers for node_redis compat.
@@ -152,5 +196,36 @@ function reply_to_object(reply) {
   }
 
   return obj;
+}
+
+
+// I realize this is possibly the most idiotic way to add support for buffers.
+
+var BUFFER_PREFIX = "\t!bUF?!1\t";
+
+function packageBuffer(buf) {
+  return BUFFER_PREFIX + buf.toString('base64');
+}
+
+function unpackageBuffersAsObjects(data) {
+  if (Array.isArray(data))
+    return data.map(unpackageBuffersAsObjects);
+
+  if (typeof data === 'string' && data.indexOf(BUFFER_PREFIX) === 0)
+    return new Buffer(data.substr(BUFFER_PREFIX.length), 'base64');
+  else if (data)
+    return new Buffer(data.toString(), 'utf8');
+  else
+    return null;
+}
+
+function unpackageBuffersAsStrings(data) {
+  if (Array.isArray(data))
+    return data.map(unpackageBuffersAsStrings);
+
+  if (typeof data === 'string' && data.indexOf(BUFFER_PREFIX) === 0)
+    return new Buffer(data.substr(BUFFER_PREFIX.length), 'base64').toString('utf8');
+  else
+    return data;
 }
 

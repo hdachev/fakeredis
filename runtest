@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# fail fast
+set -e
+
+# fakeredis tests
+echo ""
+echo "Running fakeredis test suite ..."
+echo ""
+node test
+
+# node_redis tests subset
+echo ""
+echo "Running the comaptible subset of the node_redis test suite ..."
+echo ""
+node redis.test

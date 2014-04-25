@@ -924,17 +924,56 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 } ());
 
 
+// Buffers.
+(function () {
+    var redis = fake.createClient(null, null, { return_buffers: true });
+
+    function randBuf() {
+        var n = Math.ceil(Math.random() * 1024);
+        var buf = new Buffer(n);
+        while (n --)
+            buf[n] = Math.round(Math.random() * 256);
+
+        return buf;
+    }
+
+    var k1 = randBuf();
+    var v1 = randBuf();
+
+    redis.SET(k1, v1, test("SET bufbuf", null, new Buffer(OK)));
+    redis.GET(k1, test("GET bufbuf", null, v1));
+} ());
+
+
     ////    Test shorthand.
 
 var TEST_COUNT, numErrors, numOk;
+
+function areEqualBuffers(b1, b2) {
+    if (!Buffer.isBuffer(b1))
+        return false;
+    if (!Buffer.isBuffer(b2))
+        return false;
+
+    if (b1.length !== b2.length)
+        return false;
+
+    var n = b1.length;
+    while (n--)
+        if (b1[n] !== b2[n])
+            return false;
+
+    return true;
+}
 
 function test ( name, xErr, xData )
 {
     var timeout,
         c = TEST_COUNT = ( TEST_COUNT || 0 ) + 1;
 
-    xErr  = JSON.stringify ( xErr );
-    xData = JSON.stringify ( xData );
+    xErr = JSON.stringify(xErr);
+    if (!Buffer.isBuffer(xData))
+        xData = JSON.stringify(xData);
 
     timeout = setTimeout
     (
@@ -952,15 +991,11 @@ function test ( name, xErr, xData )
         if ( err )
             err = err.message;
 
-        err  = JSON.stringify ( err );
-        data = JSON.stringify ( data );
+        err = JSON.stringify(err);
+        if (!Buffer.isBuffer(data))
+            data = JSON.stringify(data);
 
-        if ( typeof err === 'object' )
-            err = err.toString ();
-        if ( typeof data === 'object' )
-            data = data.toString ();
-
-        if ( err === xErr && data === xData )
+        if ( err === xErr && (Buffer.isBuffer(xData) ? areEqualBuffers(data, xData) : data === xData) )
         {
             numOk = (numOk || 0) + 1;
             process.stdout.write ( '\x1B[1;32m  ✓ #' + c + ' ' + name + '\x1B[0m\n' );
@@ -987,7 +1022,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 247)
+if (NUM_TESTS !== 249)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 var doexit = false;

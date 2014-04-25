@@ -2,7 +2,6 @@
 
 # fakeredis - a fake redis for node.js
 
-
 This module provides easy-to-use simulated instances of Redis
 to which you appear to be connected via the
 [redis](https://github.com/mranney/node_redis) client by [Matt Ranney](https://github.com/mranney).
@@ -87,7 +86,9 @@ I'm totally open to discussion on both points.
 
 ### Implemented subset:
 
-All string, list, hash, set and sorted set commands,
+Fakeredis is still mostly stuck in the Redis 2.4 era.
+
+All Redis 2.4 string, list, hash, set and sorted set commands,
 most keyspace commands, and some connection and server commands.
 Pubsub, transactions with optimistic locking are also fully implemented.
 
@@ -238,9 +239,14 @@ These do nothing but return `OK`:
 Most notably, there's no support for Lua scripting and `MONITOR` is still missing.
 
 Also note that **none of the node_redis client constructor options are available**,
-which means no `detect_buffers` and `return_buffers`.
+with the exception of `detect_buffers` and `return_buffers`.
 Command arguments are always stringified at the fake connection level,
 and replies are always returned as `null`, `String`, `Number` or `Array`.
+
+About `detect_buffers` and `return_buffers`: due to the way they are implemented,
+the same keys/values are not represented internally in the same way
+if you provide them as Buffers and Strings, which means that
+you need to always provide/address them consistently.
 
 Finally,
 none of the `ready`, `connect`, `error`, `end`, `drain` and `idle`
@@ -266,28 +272,6 @@ Connection and Server:
     SYNC
 
 
-## MIT License
+## License
 
-Copyright (c) 2012 Hristo Dachev
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
+MIT.
