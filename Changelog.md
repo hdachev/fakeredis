@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## v0.2.0 - April 25, 2014
+
+* Support for `detect_buffers` and `return_buffers`.
+
 ## v0.1.5 - April 22, 2014
 
 * Bugfix: client.end() throws.

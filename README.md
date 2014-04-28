@@ -238,18 +238,7 @@ These do nothing but return `OK`:
 
 Most notably, there's no support for Lua scripting and `MONITOR` is still missing.
 
-Also note that **none of the node_redis client constructor options are available**,
-with the exception of `detect_buffers` and `return_buffers`.
-Command arguments are always stringified at the fake connection level,
-and replies are always returned as `null`, `String`, `Number` or `Array`.
-
-About `detect_buffers` and `return_buffers`: due to the way they are implemented,
-the same keys/values are not represented internally in the same way
-if you provide them as Buffers and Strings, which means that
-you need to always provide/address them consistently.
-
-Finally,
-none of the `ready`, `connect`, `error`, `end`, `drain` and `idle`
+None of the `ready`, `connect`, `error`, `end`, `drain` and `idle`
 client events are currently implemented.
 
 List of **missing** commands (will throw upon attempt to use):
