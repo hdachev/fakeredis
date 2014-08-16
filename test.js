@@ -79,6 +79,9 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
     redis.SETEX ( "nonx", 0, "hello", test ( "SETEX fail", BAD_SETEX, null ) );
     redis.SETNX ( "nonx", "dont!", test ( "SETNX fail", null, 0 ) );
+    redis.SET ( "nonx", "hello", "EX", 0, test ( "SET with EX fail", BAD_INT, null ) );
+    redis.SET ( "nonx", "hello", "PX", 0, test ( "SET with PX fail", BAD_INT, null ) );
+    redis.SET ( "nonx", "dont!", "NX", test ( "SET with NX fail", null, null ) );
     redis.MSET ( "nonx", "do", test ( "MSET", null, OK ) );
     redis.send_command ( "psetex", [ "nonx", 1000, "disappear" ], test ( "PSETEX", null, OK ) );
     redis.GET ( "nonx", test ( "PSETEX set", null, "disappear" ) );
@@ -87,7 +90,7 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
     redis.TTL ( "nonx", test ( "GETSET persists", null, -1 ) );
     redis.DEL ( "nonx" );
 
-
+    redis.SET ( "flop", "dont!", "XX", test ( "SET with XX fail", null, null ) );
 
         ////    Sets.
 
@@ -1022,7 +1025,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 249)
+if (NUM_TESTS !== 253)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 var doexit = false;
