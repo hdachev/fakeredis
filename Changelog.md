@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## v0.2.2 - November 21, 2014
+
+* Bugfix: WATCH for keys that do not yet exist.
+
+## v0.2.1 - August 22, 2014
+
+* Added extended SET parameters [EX/PX/NX/XX]
+
 ## v0.2.0 - April 25, 2014
 
 * Support for `detect_buffers` and `return_buffers`.

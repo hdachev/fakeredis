@@ -453,15 +453,14 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 ( function ()
 {
     var multi,
-        redis  = fake.createClient ( "transactions-1" ),
-        redis2 = fake.createClient ( "transactions-1" );
+        redis = fake.createClient("transactions-3");
 
     redis.WATCH ( "abc" );
     redis.GET( "abc" );
     multi = redis.MULTI ();
     multi.SET ( "abc", "dfgdfg" );
-    multi.exec ( test("EXEC succeeds", null, ['OK'] ) );
-    redis.GET ( "abc", test ( "GET succeeds", null, "dfgdfg" ) );
+    multi.exec ( test("WATCH NONEX EXEC succeeds", null, ['OK'] ) );
+    redis.GET ( "abc", test ( "WATCH NONEX GET succeeds", null, "dfgdfg" ) );
 }
 () );
 
