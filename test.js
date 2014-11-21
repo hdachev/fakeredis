@@ -452,6 +452,21 @@ process.stdout.write ( 'testing fakeredis ...\n\n' );
 
 ( function ()
 {
+    var multi,
+        redis  = fake.createClient ( "transactions-1" ),
+        redis2 = fake.createClient ( "transactions-1" );
+
+    redis.WATCH ( "abc" );
+    redis.GET( "abc" );
+    multi = redis.MULTI ();
+    multi.SET ( "abc", "dfgdfg" );
+    multi.exec ( test("EXEC succeeds", null, ['OK'] ) );
+    redis.GET ( "abc", test ( "GET succeeds", null, "dfgdfg" ) );
+}
+() );
+
+( function ()
+{
     var client = fake.createClient (), set_size = 1000;
 
     client.sadd("bigset", "a member");
@@ -1025,7 +1040,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 253)
+if (NUM_TESTS !== 255)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 var doexit = false;
