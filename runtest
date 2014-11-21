@@ -11,6 +11,6 @@ node test
 
 # node_redis tests subset
 echo ""
-echo "Running the comaptible subset of the node_redis test suite ..."
+echo "Running the compatible subset of the node_redis test suite ..."
 echo ""
 node redis.test

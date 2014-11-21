@@ -1,1 +1,0 @@
-jshint lib main.js --show-non-errors
