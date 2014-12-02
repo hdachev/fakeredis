@@ -1252,63 +1252,71 @@ tests.KEYS = function () {
 };
 
 tests.SCAN = function(){
-	var name = 'SCAN';
-	var resultArray = [];
+    var name = 'SCAN';
+    var resultArray = [];
 
-	client.flushdb();
+    client.flushdb();
     client.MSET(["scan test 1", "test val 1", "scan test 2", "test val 2", "some other thing", "whoa", "another thing", "hello", "scan test 3", "scan test val 3"], require_string("OK", name));
-	// Get all keys
-	function runAllScan(cursor, pattern){
-		client.SCAN([cursor], function(err, results){
-			var cursor = results[0];
-			if (cursor !== 0){
-				resultArray = resultArray.concat(results[1]);
-				runAllScan(cursor, pattern);
-			} else {
-				assert.strictEqual(resultArray.length, 5);
-				resultArray = [];
+    // Get all keys
+    function runAllScan(cursor, pattern){
+        client.SCAN([cursor], function(err, results){
+            assert(!err);
+            var cursor = results[0];
+            resultArray = resultArray.concat(results[1]);
 
-				// Should get the 3 elements that start with "scan test"
-				runPatternScan(0, 'scan test*');
-			}
-		});
-	}
+            if (cursor !== 0){
+                runAllScan(cursor, pattern);
+            }
+            else {
+                assert.strictEqual(resultArray.length, 5);
+                resultArray = [];
 
-	// Get a subset of keys using MATCH
-	function runPatternScan(cursor, pattern){
-		client.SCAN([cursor, 'MATCH', pattern], function(err, results){
-			var cursor = results[0];
-			if (cursor !== 0){
-				resultArray = resultArray.concat(results[1]);
-				runPatternScan(cursor, pattern);
-			} else {
-				assert.strictEqual(resultArray.length, 3);
-				resultArray = [];
+                // Should get the 3 elements that start with "scan test"
+                runPatternScan(0, 'scan test*');
+            }
+        });
+    }
 
-				// Should run 5 iterations of COUNT 1 each
-				runPatternCountScan(0, 'scan test*', 1);
-			}
-		});
-	}
+    // Get a subset of keys using MATCH
+    function runPatternScan(cursor, pattern){
+        client.SCAN([cursor, 'MATCH', pattern], function(err, results){
+            assert(!err);
+            var cursor = results[0];
+            resultArray = resultArray.concat(results[1]);
 
-	// Get subset of keys using MATCH and limited to COUNT on each iteration
-	function runPatternCountScan(cursor, pattern, count){
-		client.SCAN([cursor, 'MATCH', pattern, 'COUNT', count], function(err, results){
-			var cursor = results[0];
-			if (cursor !== 0){
-				resultArray = resultArray.concat(results[1]);
-				runPatternCountScan(cursor, pattern, count);
-			} else {
-				assert.strictEqual(resultArray.length, 3);
-				resultArray.forEach(function(r){
-					assert.ok(r.indexOf('scan test') === 0);
-				});
-				next(name);
-			}
-		});
-	}
+            if (cursor !== 0){
+                runPatternScan(cursor, pattern);
+            }
+            else {
+                assert.strictEqual(resultArray.length, 3);
+                resultArray = [];
 
-	runAllScan(0);
+                // Should run 5 iterations of COUNT 1 each
+                runPatternCountScan(0, 'scan test*', 1);
+            }
+        });
+    }
+
+    // Get subset of keys using MATCH and limited to COUNT on each iteration
+    function runPatternCountScan(cursor, pattern, count){
+        client.SCAN([cursor, 'MATCH', pattern, 'COUNT', count], function(err, results){
+            assert(!err);
+            var cursor = results[0];
+            resultArray = resultArray.concat(results[1]);
+
+            if (cursor !== 0){
+                runPatternCountScan(cursor, pattern, count);
+            } else {
+                assert.strictEqual(resultArray.length, 3);
+                resultArray.forEach(function(r){
+                    assert.ok(r.indexOf('scan test') === 0);
+                });
+                next(name);
+            }
+        });
+    }
+
+    runAllScan(0);
 };
 
 tests.MULTIBULK = function() {
