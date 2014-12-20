@@ -873,6 +873,39 @@ process.stdout.write('testing fakeredis ...\n\n');
 } ());
 
 
+// Scan & co.
+
+(function () {
+    var redis = fake.createClient();
+
+    redis.SADD('myset', 'what', 'woo', 'woot', 'www');
+    redis.ZADD('myzset', 1, 'what', 4, 'woo', 3, 'woot', 2, 'www');
+    redis.HMSET('myhash', 'key1', 'val1', 'key2', 'val2');
+
+    redis.SCAN(0, test('SCAN 0 all', null, ['0', ['myset', 'myzset', 'myhash']]));
+    redis.SCAN(0, 'COUNT', 2, test('SCAN 0 COUNT 2', null, ['2', ['myset', 'myzset']]));
+    redis.SCAN(2, 'COUNT', 2, test('SCAN COUNT 2 rest', null, ['0', ['myhash']]));
+    redis.SCAN(0, 'MATCH', '*z*', test('SCAN MATCH 1', null, ['0', ['myzset']]));
+    redis.SCAN(0, 'MATCH', 'none', test('SCAN MATCH none', null, ['0', []]));
+    redis.SCAN(0, 'MATCH', '*set', 'COUNT', 1, test('SCAN MATCH COUNT', null, ['1', ['myset']]));
+    redis.SCAN(0, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT empty', null, ['1', []]));
+    redis.SCAN(1, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT mid', null, ['2', ['myzset']]));
+    redis.SCAN(0, 'MATCH', '*set', 'COUNT', 0, test('SCAN MATCH COUNT 0', null, ['0', []]));
+
+    redis.SSCAN('myset', 0, test('SSCAN 0 all', null, ['0', ['what', 'woo', 'woot', 'www']]));
+    redis.SSCAN('myset', 0, 'COUNT', 2, test('SSCAN 0 COUNT 2', null, ['2', ['what', 'woo']]));
+    redis.SSCAN('myset', 2, 'COUNT', 2, test('SSCAN COUNT 2 rest', null, ['0', ['woot', 'www']]));
+    redis.SSCAN('myset', 0, 'MATCH', '*o', test('SSCAN MATCH 1', null, ['0', ['woo']]));
+
+    redis.HSCAN('myhash', 0, test('HSCAN', null, ['0', ['key1', 'val1', 'key2', 'val2']]));
+    redis.HSCAN('myhash', 0, 'MATCH', '*y2', test('HSCAN MATCH', null, ['0', ['key2', 'val2']]));
+
+    redis.ZSCAN('myzset', 0, test('ZSCAN', null, ['0', ['what', '1', 'www', '2', 'woot', '3', 'woo', '4']]));
+    redis.ZSCAN('myzset', 0, 'MATCH', 'wo*', test('ZSCAN MATCH', null, ['0', ['woot', '3', 'woo', '4']]));
+
+} ());
+
+
 // Test shorthand.
 
 var TEST_COUNT, numErrors, numOk;
@@ -943,18 +976,13 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 255)
+if (NUM_TESTS !== 272)
     throw new Error("Test count is off: " + NUM_TESTS);
 
-var doexit = false;
 process.on('exit', function () {
-    if (doexit)
-        return;
-
     if (TEST_COUNT > NUM_TESTS)
         throw new Error("Update NUM_TESTS when adding stuff to the test suite.");
 
-    doexit = true;
     if (!numErrors && numOk === TEST_COUNT && numOk === NUM_TESTS) {
         process.stdout.write('\n\x1B[1;32m  ✓ All good (' + numOk + ').\x1B[0m\n');
         process.exit(0);

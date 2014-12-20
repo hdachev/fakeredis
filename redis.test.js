@@ -1264,7 +1264,7 @@ tests.SCAN = function(){
             var cursor = results[0];
             resultArray = resultArray.concat(results[1]);
 
-            if (cursor !== 0){
+            if (Number(cursor) !== 0){
                 runAllScan(cursor, pattern);
             }
             else {
@@ -1284,7 +1284,7 @@ tests.SCAN = function(){
             var cursor = results[0];
             resultArray = resultArray.concat(results[1]);
 
-            if (cursor !== 0){
+            if (Number(cursor) !== 0){
                 runPatternScan(cursor, pattern);
             }
             else {
@@ -1304,7 +1304,7 @@ tests.SCAN = function(){
             var cursor = results[0];
             resultArray = resultArray.concat(results[1]);
 
-            if (cursor !== 0){
+            if (Number(cursor) !== 0){
                 runPatternCountScan(cursor, pattern, count);
             } else {
                 assert.strictEqual(resultArray.length, 3);

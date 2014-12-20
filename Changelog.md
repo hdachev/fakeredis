@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## v0.3.0 - December 20, 2014
+
+* SCAN, SSCAN, HSCAN, ZSCAN
+* Bugfix: correct response formatting for zeros in bulk replies
+
 ## v0.2.2 - November 21, 2014
 
 * Bugfix: WATCH for keys that do not yet exist.
