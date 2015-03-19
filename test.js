@@ -457,7 +457,7 @@ process.stdout.write('testing fakeredis ...\n\n');
         sub3 = fake.createClient("pubsub-1"),
 
         data = [ 0, [], [], [] ],
-        tcb1 = test("PUBSUB basics", null, [ 4, [ 'mych-alpha', 'mych-beta', 'mych-omega' ], [ 'mych-alpha', 'mych-beta' ], [ 'mych-alpha', 'mych-beta', 'what-what', 'mych-omega' ] ]),
+        tcb1 = test("PUBSUB basics", null, [ 4, [ 'my.ch-alpha', 'my.ch-beta', 'my.ch-omega' ], [ 'my.ch-alpha', 'my.ch-beta' ], [ 'my.ch-alpha', 'my.ch-beta', 'what-what', 'my.ch-omega' ] ]),
 
         ord  = [],
         tcb2 = test("PUBSUB normal / sequence", null, [ 1, '*ch', 'pun', 1 ]),
@@ -469,9 +469,9 @@ process.stdout.write('testing fakeredis ...\n\n');
         ord.push(data);
     });
 
-    sub1.SUBSCRIBE("mych");
+    sub1.SUBSCRIBE("my.ch");
     sub2.PSUBSCRIBE("*ch");
-    sub3.PSUBSCRIBE("my*", "what");
+    sub3.PSUBSCRIBE("my.*", "what");
 
     try {
         sub3.PUBLISH('fail', 'fail');
@@ -485,7 +485,7 @@ process.stdout.write('testing fakeredis ...\n\n');
         data[1].push(channel + '-' + message);
 
         if (message === 'alpha')
-            pub.PUBLISH('mych', 'beta', test('PUB2', null, 3));
+            pub.PUBLISH('my.ch', 'beta', test('PUB2', null, 3));
     });
 
     sub2.on('pmessage', function (pattern, channel, message) {
@@ -508,7 +508,7 @@ process.stdout.write('testing fakeredis ...\n\n');
         });
 
         sub2.PUBLISH('hello', 'world', test('PUB4 ignored', null, 0));
-        sub2.PUBLISH('mych', 'omega', test('PUB5 unsubed', null, 2));
+        sub2.PUBLISH('my.ch', 'omega', test('PUB5 unsubed', null, 2));
     });
 
     sub3.on('pmessage', function (pattern, channel, message) {
@@ -518,7 +518,7 @@ process.stdout.write('testing fakeredis ...\n\n');
     var start = function (ch) {
         data [ 0 ] ++;
         if (data [ 0 ] === 4) {
-            pub.PUBLISH('mych', 'alpha', test('PUB1', null, 3));
+            pub.PUBLISH('my.ch', 'alpha', test('PUB1', null, 3));
         }
 
         if (ch === '*ch')
