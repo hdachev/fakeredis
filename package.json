@@ -1,5 +1,5 @@
 {   "name": "fakeredis",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Fake redis for testing, works as a drop-in replacement for node_redis",
     "keywords": [ "test", "spec", "fake", "redis", "simulated", "implementation", "client" ],
     "author": "Hristo Dachev <tutini@gmail.com>",
