@@ -60,7 +60,15 @@ because you can run as many tests in parallel as you wish,
 and that's also why you'll generally be naming your clients
 in a way that ensures tests don't collide.
 
+By default fakeredis simulates network latency
+to help you discover race-conditions when testing multi-client setups.
+Network latency can be disabled using the .fast option:
 
+```javascript
+var client = require("fakeredis").createClient(port, host, {
+    fast : true
+});
+```
 
 ## Intended differences from a true Redis
 
