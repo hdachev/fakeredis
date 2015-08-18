@@ -122,6 +122,7 @@ Keyspace:
 Strings:
 
     APPEND
+    BITCOUNT
     DECR
     DECRBY
     GET
