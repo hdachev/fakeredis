@@ -89,6 +89,14 @@ process.stdout.write('testing fakeredis ...\n\n');
 
     redis.SET("flop", "dont!", "XX", test("SET with XX fail", null, null));
 
+    redis.BITCOUNT(test("BITCOUNT missing key parameter", BAD_ARGS, null));
+    redis.BITCOUNT("absentKey", test("BITCOUNT absent key", null, 0));
+    redis.SET("bitCountKey", "foobar");
+    redis.BITCOUNT("bitCountKey", test("BITCOUNT of valid key", null, 26));
+    redis.BITCOUNT("bitCountKey", 0, -1, test("BITCOUNT using explicit range", null, 26));
+    redis.BITCOUNT("bitCountKey", 0, 0, test("BITCOUNT of first character", null, 4));
+    redis.BITCOUNT("bitCountKey", -1, -1, test("BITCOUNT of last character", null, 4));
+    redis.BITCOUNT("bitCountKey", 0, 3, test("BITCOUNT of substring", null, 19));
 
     // Sets.
 
@@ -976,7 +984,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 272)
+if (NUM_TESTS !== 279)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 process.on('exit', function () {
@@ -993,4 +1001,3 @@ process.on('exit', function () {
         process.exit(1);
     }
 });
-
