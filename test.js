@@ -242,6 +242,13 @@ process.stdout.write('testing fakeredis ...\n\n');
     redis.ZINTERSTORE("nothing", 2, "lexi", "otherzset", test("ZINTERSTORE empty out", null, 0));
     redis.TYPE("nothing", test("ZINTERSTORE empty out / TYPE", null, "none"));
 
+    redis.SADD("newset", "v1", "v2");
+    redis.ZADD("newzset", 1, "v1", 2, "v2", 3, "v3");
+    redis.ZINTERSTORE("out", 2, "newzset", "newset");
+    redis.ZRANGE("out", 0, -1, test("ZINTERSTORE with sets", null, ["v1", "v2"]));
+    // switch set and zset key order
+    redis.ZINTERSTORE("out2", 2, "newset", "newzset");
+    redis.ZRANGE("out2", 0, -1, test("ZINTERSTORE with sets", null, ["v1", "v2"]));
 
     // Hashes.
 
@@ -984,7 +991,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 279)
+if (NUM_TESTS !== 281)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 process.on('exit', function () {
