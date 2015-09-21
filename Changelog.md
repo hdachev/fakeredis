@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## v0.3.3 - September 21, 2015
+
+* ZINTERSTORE and ZUNIONSTORE now work with sets.
+
 ## v0.3.2 - August 19, 2015
 
 * BITCOUNT
