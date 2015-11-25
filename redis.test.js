@@ -2280,7 +2280,10 @@ run_next_test = function run_next_test() {
 };
 
 client.once("ready", function start_tests() {
-    console.log("Connected to " + client.host + ":" + client.port + ", Redis server version " + client.server_info.redis_version + "\n");
+    console.log(
+        "Connected to " + client.connection_options.host + ":" + client.connection_options.port +
+        ", Redis server version: " + (client.server_info.redis_version || 'Faked server') + "\n"
+    );
     // console.log("Using reply parser " + client.reply_parser.name);
 
     run_next_test();
