@@ -120,7 +120,7 @@ function with_timeout(name, cb, millis) {
 }
 
 next = function next(name) {
-    console.log(" \x1b[33m" + (Date.now() - cur_start) + "\x1b[0m ms");
+    console.log('- \x1b[1m' + name.toLowerCase() + '\x1b[0m: \x1b[33m' + (Date.now() - cur_start) + '\x1b[0m ms');
     run_next_test();
 };
 
@@ -2268,7 +2268,6 @@ test_count = 0;
 run_next_test = function run_next_test() {
     var test_name = all_tests.shift();
     if (typeof tests[test_name] === "function") {
-        util.print('- \x1b[1m' + test_name.toLowerCase() + '\x1b[0m:');
         cur_start = new Date();
         test_count += 1;
         tests[test_name]();
