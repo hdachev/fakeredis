@@ -5,8 +5,9 @@
     "author": "Hristo Dachev <tutini@gmail.com>",
     "main": "./main.js",
     "dependencies": {
-        "redis": "2.1.x"
+        "redis": "^2.4.0"
     },
+    "license": "MIT",
     "bugs": {
         "mail": "tutini@gmail.com",
         "url": "http://github.com/hdachev/fakeredis/issues"

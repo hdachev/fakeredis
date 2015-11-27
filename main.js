@@ -31,16 +31,23 @@ exports.createClient = function(port, host, options) {
   var id = !port && !host ? 'fake_' + (++anon) : (host || "") + (port || "")
     , lat = options && options.fast || exports.fast ? 1 : null
     , c = new Connection(backends[id] || (backends[id] = new Backend), lat, lat)
-    , cl = new RedisClient({ on: function() {} }/* , options */)
-
+    , real_create_stream = RedisClient.prototype.create_stream
     , returnBuffers = options && options.return_buffers
     , detectBuffers = options && options.detect_buffers;
 
+  // Mock create_stream to create a new RedisClient without creating a socket
+  RedisClient.prototype.create_stream = function () {
+    this.connected = true;
+    this.ready = true;
+  };
+
+  var cl = new RedisClient(/* options */)
+
+  // Replace the mocked create_stream function again with the original one
+  RedisClient.prototype.create_stream = real_create_stream;
+
   if (options && options.verbose)
     c.verbose = true;
-
-  cl.connected = true;
-  cl.ready = true;
 
   cl.end = function() {
     cl.send_command = function(command) {
