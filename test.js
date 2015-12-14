@@ -110,6 +110,8 @@ process.stdout.write('testing fakeredis ...\n\n');
     redis.SUNIONSTORE("output", [ "nonex1", "myset", "set2", "set3", "nonex2" ], test("SUNIONSTORE", null, 11));
     redis.SISMEMBER("output", "xxx", test("SISMEMBER union 3 sets", null, 1));
     redis.SINTER("myset", "output", test("SINTER", null, [ "ala", "bala", "niza" ]));
+    redis.SINTER("myset", "outputs", test("SINTER nonex empty 1", null, []));
+    redis.SINTER("outputs", "myset", test("SINTER nonex empty 2", null, []));
     redis.SADD("set3", "ala", 3, 4, "kukukuku");
     redis.SDIFFSTORE("output", "output", "set3", test("SDIFFSTORE", null, 5));
     redis.SMEMBERS("output", test("SMEMBERS", null, [ "1", "2", "5", "bala", "niza" ]));
@@ -1004,7 +1006,7 @@ function countTests() {
 }
 
 var NUM_TESTS = countTests();
-if (NUM_TESTS !== 284)
+if (NUM_TESTS !== 286)
     throw new Error("Test count is off: " + NUM_TESTS);
 
 process.on('exit', function () {
