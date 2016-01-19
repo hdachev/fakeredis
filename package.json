@@ -16,7 +16,12 @@
         "type": "git",
         "url": "git://github.com/hdachev/fakeredis.git"
     },
-    "scripts": {
-        "test": "./runtest"
-    }
+  "scripts": {
+    "test": "./runtest",
+    "coverage": "./covertest"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.6",
+    "lcov-result-merger": "^1.0.2"
+  }
 }
