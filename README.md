@@ -1,6 +1,11 @@
+# fakeredis
 
+[![npm version][npm-badge]][npm-url]
+[![Build Status][travis-badge]][travis-url]
+[![Code Climate][codeclimate-badge]][codeclimate-url]
+[![Dependency Status][david-badge]][david-url]
 
-# fakeredis - a fake redis for node.js
+> **a fake redis for [node.js](https://github.com/nodejs/node)**
 
 This module provides easy-to-use simulated instances of Redis
 to which you appear to be connected via the
@@ -10,7 +15,6 @@ your tests won't require an actual redis instance
 and you'll be able to safely run as many tests in parallel as you want.
 
 [![NPM Version](https://nodei.co/npm/fakeredis.png?downloads=true)](https://npmjs.org/package/fakeredis)
-[![Build Status](https://secure.travis-ci.org/hdachev/fakeredis.png?branch=master)](http://travis-ci.org/hdachev/fakeredis)
 
 
 ## Usage
@@ -273,3 +277,13 @@ Connection and Server:
 ## License
 
 MIT.
+
+
+[npm-badge]: https://img.shields.io/npm/v/fakeredis.svg
+[npm-url]: https://npmjs.com/package/fakeredis
+[travis-badge]: https://api.travis-ci.org/hdachev/fakeredis.svg
+[travis-url]: https://travis-ci.org/hdachev/fakeredis
+[david-badge]: https://david-dm.org/hdachev/fakeredis.svg
+[david-url]: https://david-dm.org/hdachev/fakeredis
+[codeclimate-badge]: https://codeclimate.com/github/hdachev/fakeredis/badges/gpa.svg
+[codeclimate-url]: https://codeclimate.com/github/hdachev/fakeredis
