@@ -2,6 +2,7 @@
 
 [![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
+[![Coverage Status][coveralls-badge]][coveralls-url]
 [![Code Climate][codeclimate-badge]][codeclimate-url]
 [![Dependency Status][david-badge]][david-url]
 
@@ -283,6 +284,8 @@ MIT.
 [npm-url]: https://npmjs.com/package/fakeredis
 [travis-badge]: https://api.travis-ci.org/hdachev/fakeredis.svg
 [travis-url]: https://travis-ci.org/hdachev/fakeredis
+[coveralls-badge]:https://coveralls.io/repos/hdachev/fakeredis/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/hdachev/fakeredis?branch=master
 [david-badge]: https://david-dm.org/hdachev/fakeredis.svg
 [david-url]: https://david-dm.org/hdachev/fakeredis
 [codeclimate-badge]: https://codeclimate.com/github/hdachev/fakeredis/badges/gpa.svg
