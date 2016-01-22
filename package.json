@@ -1,27 +1,37 @@
-{   "name": "fakeredis",
-    "version": "1.0.1",
-    "description": "Fake redis for testing, works as a drop-in replacement for node_redis",
-    "keywords": [ "test", "spec", "fake", "redis", "simulated", "implementation", "client" ],
-    "author": "Hristo Dachev <tutini@gmail.com>",
-    "main": "./main.js",
-    "dependencies": {
-        "redis": "^2.4.2"
-    },
-    "license": "MIT",
-    "bugs": {
-        "mail": "tutini@gmail.com",
-        "url": "http://github.com/hdachev/fakeredis/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/hdachev/fakeredis.git"
-    },
+{
+  "name": "fakeredis",
+  "version": "1.0.1",
+  "description": "Fake redis for testing, works as a drop-in replacement for node_redis",
+  "keywords": [
+    "test",
+    "spec",
+    "fake",
+    "redis",
+    "simulated",
+    "implementation",
+    "client"
+  ],
+  "author": "Hristo Dachev <tutini@gmail.com>",
+  "main": "./main.js",
+  "dependencies": {
+    "redis": "^2.4.2"
+  },
+  "license": "MIT",
+  "bugs": {
+    "mail": "tutini@gmail.com",
+    "url": "http://github.com/hdachev/fakeredis/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hdachev/fakeredis.git"
+  },
   "scripts": {
     "test": "./runtest",
     "coverage": "./covertest"
   },
   "devDependencies": {
     "coveralls": "^2.11.6",
+    "istanbul": "^0.4.2",
     "lcov-result-merger": "^1.0.2"
   }
 }

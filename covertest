@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -e
 mkdir -p coverage/first
 
 echo "Running fakeredis test suite ..."
@@ -8,7 +9,7 @@ mv 'coverage/lcov.info' 'coverage/first.info'
 
 # node_redis tests subset
 echo "Running the compatible subset of the node_redis test suite ..."
-istanbul cover redis.test.js --lcovonly 
+istanbul cover redis.test.js --lcovonly
 
 # merging
 lcov-result-merger  'coverage/*.info' 'coverage/merged.lcov'
