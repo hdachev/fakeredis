@@ -23,12 +23,23 @@ var index = require("redis")
 exports.RedisClient = index.RedisClient;
 exports.Multi = index.Multi;
 exports.print = index.print;
-
+exports.backends = backends;
 
 // Overriden client factory.
 
 exports.createClient = function(port, host, options) {
-  var id = !port && !host ? 'fake_' + (++anon) : (host || "") + (port || "")
+  if (arguments.length == 1 && typeof port == "object") { 
+    options = port;
+    if (options.port || options.host) {
+      port = options.port;
+      host = options.host;
+    }
+    if (options.url || options.path) { 
+      host = options.url || options.path;
+      port = "";
+    }
+  }
+  var id = !port && !host ? 'fake_' + (++anon) : (host || "") + ((port) ? ":" + port : null || "")
     , lat = options && options.fast || exports.fast ? 1 : null
     , c = new Connection(backends[id] || (backends[id] = new Backend), lat, lat)
     , real_create_stream = RedisClient.prototype.create_stream
