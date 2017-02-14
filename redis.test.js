@@ -2261,6 +2261,25 @@ tests.unref = function () {
     }, 500);
 };*/
 
+tests.CONSTRUCTOR_ARGUMENTS = function () {
+    var name = "constructor arguments";
+    var client1 = redis.createClient({ host: "testdomain.com", port: 1790 });
+    var client2 = redis.createClient({ url: "redis://testdomain.com:1791" });
+    var client3 = redis.createClient({ path: "testdomain.com:1792" });
+    var client4 = redis.createClient({ path: "testdomain.com:1793", return_buffers: true });
+    assert.equal("object", typeof redis.backends["testdomain.com:1790"], name + " host & port");
+    assert.equal("object", typeof redis.backends["redis://testdomain.com:1791"], name + " url");
+    assert.equal("object", typeof redis.backends["testdomain.com:1792"], name + " path");
+    client4.set("string key 1", "string value");
+    client4.get("string key 1", require_string("string value", name));
+    client4.get(new Buffer("string key 1"), function (err, reply) {
+        assert.strictEqual(null, err, name);
+        assert.strictEqual(true, Buffer.isBuffer(reply), name);
+        assert.strictEqual("<Buffer 73 74 72 69 6e 67 20 76 61 6c 75 65>", reply.inspect(), name);
+    });
+    next(name);
+};
+
 all_tests = Object.keys(tests);
 all_start = new Date();
 test_count = 0;
